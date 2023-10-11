@@ -3,6 +3,7 @@ src = "src"
 out = "out"
 libs = ["lib"]
 solc = "0.8.20"
+fs_permissions = [{ access = "read", path = "./test"}]
 #auto_detect_solc = true
 
 [rpc_endpoints]
