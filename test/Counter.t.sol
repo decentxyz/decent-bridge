@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "../src/Counter.sol";
+import "forge-std/console2.sol";
 
 contract CounterTest is Test {
     Counter public counter;
@@ -13,6 +14,7 @@ contract CounterTest is Test {
     }
 
     function testIncrement() public {
+        console.log("henlo");
         counter.increment();
         assertEq(counter.number(), 1);
     }
