@@ -6,59 +6,41 @@ import {CommonBase} from "forge-std/Base.sol";
 import {StdCheats} from "forge-std/StdCheats.sol";
 import {OFTV2} from "solidity-examples/token/oft/v2/OFTV2.sol";
 import {WETH} from "solmate/tokens/WETH.sol";
-
-struct EndpointAddresses {
-    address ethereum;
-    address bsc;
-    address avalanche;
-    address polygon;
-    address arbitrum;
-    address optimism;
-    address fantom;
-    address goerli;
-    address bscTestnet;
-    address fuji;
-    address mumbai;
-    address arbitrumGoerli;
-    address optimismGoerli;
-    address fantomTestnet;
-    address meterTestnet;
-    address zksyncTestnet;
-}
-
-contract JSONReader is CommonBase {
-    function readJson(string memory filepath) public returns (bytes memory content) {
-        string memory fileContent = vm.readFile(filepath);
-        return vm.parseJson(fileContent);
-    }
-}
+import {DecentEthRouter} from "src/DecentEthRouter.sol";
+import {DcntEth} from "src/DcntEth.sol";
 
 contract TestConfig is CommonBase {
-    JSONReader jsonReader = new JSONReader();
-
-    function readLzEndpoint() public returns (string memory endpoint) {
-        bytes memory content = jsonReader.readJson(
-            "./constants/layezeroEndpoints.json"
+    function readLzEndpoint(
+        string memory key
+    ) public view returns (address endpoint) {
+        string memory filePath = "./constants/layerzeroEndpoints.json";
+        string memory fileContent = vm.readFile(filePath);
+        string memory addressStr = vm.parseJsonString(
+            fileContent,
+            string.concat(".", key)
         );
-        EndpointAddresses memory jsonAsConfigFile = abi.decode(
-            content,
-            (EndpointAddresses)
-        );
-        return jsonAsConfigFile.ethereum;
+        return address(bytes20(bytes(addressStr)));
     }
 }
 
 contract DecentEthRouterTest is Test {
-    WETH weth;
-    address lzEndpiont = address(0);
+    WETH weth = new WETH();
+    TestConfig testConfig = new TestConfig();
+    address lzEndpoint = testConfig.readLzEndpoint("avalanche");
+    DcntEth dcntEth = new DcntEth(lzEndpoint);
+    DecentEthRouter router = new DecentEthRouter(payable(address(weth)));
 
-    constructor() {
-        weth = new WETH();
+    function setUp() public {
         console2.log("deployed WETH contract ", address(weth));
-        //const endpointAddr = LZ_ENDPOINTS[hre.network.name]
+        console2.log("lzEndpoint", lzEndpoint);
+        router.deployDcntEth(lzEndpoint);
+        console2.log("deployed decentETH contract", address(router.dcntEth()));
+        //address endpointAddr = LZ_ENDPOINTS[hre.network.name]
     }
 
-    function testIncrement() public {
-        console2.log("hi", address(weth));
+    function testIncrement() public view {
+        //console2.log("hi", address(weth));
+        //string memory value = vm.parseJsonString("{\"arshan\":\"hello\"}", ".arshan");
+        //console2.log("value", value);
     }
 }

@@ -1,9 +1,10 @@
 include .env
 
-deploy-ftm:
-	ETHERSCAN_API_KEY=$(FTMSCAN_API_KEY) \
-	forge script script/Counter.s.sol:CounterScript \
-		--rpc-url $(FTM_TESTNET_RPC) --broadcast --verify -vvvv
+deploy:
+	forge script script/DecentEthRouter.s.sol:DeployRouter \
+		--private-key=$(TESTNET_ACCOUNT) \
+		--broadcast --verify -vvv
+
 
 ##### whole lotta convenience scripts
 watch-test:
