@@ -14,8 +14,4 @@ contract DcntEth is OFTV2 {
     function burn(address _from, uint256 _amount) public onlyOwner {
         _burn(_from, _amount);
     }
-
-
-
-
 }

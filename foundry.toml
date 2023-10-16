@@ -3,7 +3,7 @@ src = "src"
 out = "out"
 libs = ["lib"]
 solc = "0.8.20"
-fs_permissions = [{ access = "read", path = "./constants"}]
+fs_permissions = [{ access = "read", path = "./constants"}, { access = "read", path = "./broadcast"}]
 
 [rpc_endpoints]
 ftm-testnet = "${FTM_TESTNET_RPC}"
@@ -13,5 +13,6 @@ sepolia = "${SEPOLIA_RPC}"
 [etherscan]
 ftm-testnet = { key = "${FTMSCAN_API_KEY}", url = "https://api-testnet.ftmscan.com/api" }
 fuji = { key = "${SNOWTRACE_API_KEY}", url = "https://api-testnet.snowtrace.io/api" }
-sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api-sepolia.etherscan.io/api" }
+sepolia = { key = "${ETHERSCAN_ETHERUM_API_KEY}", url = "https://api-sepolia.etherscan.io/api" }
+
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

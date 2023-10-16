@@ -27,20 +27,30 @@ contract DecentEthRouterTest is Test {
     WETH weth = new WETH();
     TestConfig testConfig = new TestConfig();
     address lzEndpoint = testConfig.readLzEndpoint("avalanche");
-    DcntEth dcntEth = new DcntEth(lzEndpoint);
+    DcntEth dcntEth;
     DecentEthRouter router = new DecentEthRouter(payable(address(weth)));
 
     function setUp() public {
         console2.log("deployed WETH contract ", address(weth));
         console2.log("lzEndpoint", lzEndpoint);
         router.deployDcntEth(lzEndpoint);
+        dcntEth = router.dcntEth();
         console2.log("deployed decentETH contract", address(router.dcntEth()));
-        //address endpointAddr = LZ_ENDPOINTS[hre.network.name]
     }
 
-    function testIncrement() public view {
-        //console2.log("hi", address(weth));
-        //string memory value = vm.parseJsonString("{\"arshan\":\"hello\"}", ".arshan");
-        //console2.log("value", value);
+    function testShouldBeAbletoDepositWeth() public {
+        router.addLiquidityEth{value: 10}();
+        assertEq(weth.balanceOf(address(router)), 10);
+        assertEq(dcntEth.balanceOf(address(router)), 10);
+
+        router.removeLiquidityEth(5);
+        assertEq(weth.balanceOf(address(router)), 5);
+        assertEq(dcntEth.balanceOf(address(router)), 5);
     }
+
+    // Function to receive Ether. msg.data must be empty
+    receive() external payable {}
+
+    // Fallback function is called when msg.data is not empty
+    fallback() external payable {}
 }
