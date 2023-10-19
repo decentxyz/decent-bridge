@@ -23,7 +23,8 @@ contract DeployRouter is Script {
     function run() public {
         uint chainFork = vm.createSelectFork(chainAlias);
         vm.startBroadcast();
-        DecentEthRouter router = new DecentEthRouter(payable(weth));
+        bool isGasEth = true;
+        DecentEthRouter router = new DecentEthRouter(payable(weth), isGasEth);
         router.deployDcntEth(lzEndpoint);
         uint liquidity = 20;
         router.addLiquidityEth{value: liquidity}();

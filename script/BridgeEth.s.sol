@@ -15,14 +15,12 @@ contract BridgeEth is Script, DeploymentHelpers, DeployedContext {
     function run() public {
         vm.createSelectFork(srcChainAlias);
         vm.startBroadcast();
-        bytes memory payload = abi.encode(me);
         uint amountToBridge = 10;
         (uint nativeFee, uint zroFee) = srcRouter.estimateSendAndCallFee(
             dstLzId,
             me, // us maybe inshallah?
             amountToBridge,
-            DST_GAS_FOR_CALL,
-            payload
+            DST_GAS_FOR_CALL
         );
         uint totalFee = nativeFee + zroFee;
         console2.log("native fee", nativeFee, "zroFee", zroFee);
@@ -30,8 +28,7 @@ contract BridgeEth is Script, DeploymentHelpers, DeployedContext {
             dstLzId,
             me, // us
             amountToBridge,
-            DST_GAS_FOR_CALL,
-            payload
+            DST_GAS_FOR_CALL
         );
 
         vm.stopBroadcast();
