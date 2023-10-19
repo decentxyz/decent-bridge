@@ -6,9 +6,6 @@ import {DcntEth} from "./DcntEth.sol";
 import {ICommonOFT} from "solidity-examples/token/oft/v2/interfaces/ICommonOFT.sol";
 import {IOFTReceiverV2} from "solidity-examples/token/oft/v2/interfaces/IOFTReceiverV2.sol";
 
-
-
-
 contract DecentEthRouter is IOFTReceiverV2 {
     WETH public weth;
     DcntEth public dcntEth;
@@ -66,13 +63,13 @@ contract DecentEthRouter is IOFTReceiverV2 {
         bytes memory _payload = abi.encode(msg.sender);
         uint256 GAS_FOR_RELAY = 100000;
         uint256 gasAmount = GAS_FOR_RELAY + _dstGasForCall;
-        bytes memory adapterParams = abi.encodePacked(
+        bytes memory _adapterParams = abi.encodePacked(
             PT_SEND_AND_CALL,
             gasAmount
         );
         address _dstBridge = destinationBridges[_dstChainId];
         bytes32 destinationBridge = bytes32(abi.encode(_dstBridge));
-        return (destinationBridge, adapterParams, _payload);
+        return (destinationBridge, _adapterParams, _payload);
     }
 
     function estimateSendAndCallFee(

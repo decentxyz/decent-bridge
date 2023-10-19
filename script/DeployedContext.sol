@@ -18,19 +18,25 @@ contract DeployedContext is DeploymentHelpers {
     function setUp() public {
         srcRouter = DecentEthRouter(
             payable(
-                getFromLastRun(srcChainId, ".transactions[0].contractAddress")
+                getFromLastRun(
+                    srcChainId,
+                    '$.transactions[?(@.contractName == "DecentEthRouter")].contractAddress'
+                )
             )
         );
         dstRouter = DecentEthRouter(
             payable(
-                getFromLastRun(dstChainId, ".transactions[0].contractAddress")
+                getFromLastRun(
+                    dstChainId,
+                    '$.transactions[?(@.contractName == "DecentEthRouter")].contractAddress'
+                )
             )
         );
         dstDcntEth = DcntEth(
             payable(
                 getFromLastRun(
                     dstChainId,
-                    ".transactions[1].additionalContracts[0].address"
+                    '$.transactions[?(@.function == "deployDcntEth(address)")].additionalContracts[0].address'
                 )
             )
         );

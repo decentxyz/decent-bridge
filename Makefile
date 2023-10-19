@@ -8,24 +8,29 @@ bridge-e2e: deploy-router-all wire-up-all bridge-ftm-to-sepolia
 bridge-ftm-to-sepolia:
 	SCRIPT_NAME=BridgeFtmToSepolia make bridge
 
+bridge-sepolia-to-ftm:
+	SCRIPT_NAME=BridgeSepoliaToFtm make bridge
+
 bridge:
 	forge script script/BridgeEth.s.sol:$(SCRIPT_NAME) $(COMMON_PARAMS)
 
 WIREUP_CONFIGS := WireUpSepoliaToFtm WireUpFtmToSepolia
 
 wire-up-all:
-	for script_name in $(WIREUP_CONFIGS); do \
-		make wire-up SCRIPT_NAME=$$script_name; \
+	@for script_name in $(WIREUP_CONFIGS); do \
+		(make wire-up SCRIPT_NAME=$$script_name &) \
 	done
+	@wait
 
 wire-up:
 	forge script script/WireUpContracts.s.sol:$(SCRIPT_NAME) $(COMMON_PARAMS)
 
 ROUTERS := DeployFtm DeploySepolia
 deploy-router-all:
-	for script_name in $(ROUTERS); do \
-		make deploy-router SCRIPT_NAME=$$script_name; \
+	@for script_name in $(ROUTERS); do \
+  		(make deploy-router SCRIPT_NAME=$$script_name &) \
 	done
+	@wait
 
 deploy-router:
 	forge script script/DeployRouter.s.sol:$(SCRIPT_NAME) $(COMMON_PARAMS)

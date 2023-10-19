@@ -5,6 +5,8 @@ import "forge-std/Script.sol";
 import {CommonBase} from "forge-std/Base.sol";
 import {DecentEthRouter} from "src/DecentEthRouter.sol";
 import {DcntEth} from "src/DcntEth.sol";
+import {WETH} from "solmate/tokens/WETH.sol";
+import {ERC20} from "solmate/tokens/ERC20.sol";
 
 //https://layerzero.gitbook.io/docs/technical-reference/testnet/testnet-addresses
 contract BaseScript is Script {
@@ -15,35 +17,66 @@ contract BaseScript is Script {
     uint64 DST_GAS_FOR_CALL = 120000;
 }
 
+contract BridgedWeth is ERC20("Wrapped Ether", "WETH", 18) {
+    function mint(address to, uint amount) external {
+        _mint(to, amount);
+    }
+}
+
 contract DeployRouter is Script {
     string chainAlias;
-    address weth;
+    BridgedWeth bridgedWeth;
+    WETH weth;
     address lzEndpoint;
+    bool isGasEth;
+
+    function setupWeth() internal virtual {}
 
     function run() public {
         uint chainFork = vm.createSelectFork(chainAlias);
         vm.startBroadcast();
-        bool isGasEth = true;
-        DecentEthRouter router = new DecentEthRouter(payable(weth), isGasEth);
+        setupWeth();
+
+        DecentEthRouter router;
+        if (isGasEth) {
+            router = new DecentEthRouter(payable(address(weth)), isGasEth);
+        } else {
+            router = new DecentEthRouter(
+                payable(address(bridgedWeth)),
+                isGasEth
+            );
+        }
         router.deployDcntEth(lzEndpoint);
         uint liquidity = 20;
-        router.addLiquidityEth{value: liquidity}();
+        if (isGasEth) {
+            router.addLiquidityEth{value: liquidity}();
+        } else {
+            bridgedWeth.mint(address(msg.sender), liquidity);
+            bridgedWeth.approve(address(router), liquidity);
+            router.addLiquidityWeth(liquidity);
+        }
+
         vm.stopBroadcast();
     }
 }
 
 contract DeployFtm is DeployRouter {
+    function setupWeth() internal override {
+        bridgedWeth = new BridgedWeth();
+    }
+
     constructor() {
         chainAlias = "ftm-testnet";
-        weth = 0x07B9c47452C41e8E00f98aC4c075F5c443281d2A;
         lzEndpoint = 0x7dcAD72640F835B0FA36EFD3D6d3ec902C7E5acf;
+        isGasEth = false;
     }
 }
 
 contract DeploySepolia is DeployRouter {
     constructor() {
         chainAlias = "sepolia";
-        weth = 0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9;
+        weth = WETH(payable(0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9));
         lzEndpoint = 0xae92d5aD7583AD66E49A0c67BAd18F6ba52dDDc1;
+        isGasEth = true;
     }
 }
