@@ -7,13 +7,16 @@ fs_permissions = [{ access = "read", path = "./constants"}, { access = "read", p
 
 [rpc_endpoints]
 arbitrum = "${ARBITRUM_RPC}"
+optimism = "${OPTIMISM_RPC}"
 polygon = "${POLYGON_RPC}"
 ftm-testnet = "${FTM_TESTNET_RPC}"
 fuji = "${FUJI_RPC}"
 sepolia = "${SEPOLIA_RPC}"
+zora = "${ZORA_RPC}"
 
 [etherscan]
 arbitrum = { key = "${ARBISCAN_API_KEY}", url = "https://api.arbiscan.io/api" }
+optimism = { key = "${OPTIMISM_ETHERSCAN_API_KEY}", url = "https://api-optimistic.etherscan.io/api" }
 polygon = { key = "${POLYGONSCAN_API_KEY}", url = "https://api-testnet.polygonscan.com/api" }
 ftm-testnet = { key = "${FTMSCAN_API_KEY}", url = "https://api-testnet.ftmscan.com/api" }
 fuji = { key = "${SNOWTRACE_API_KEY}", url = "https://api-testnet.snowtrace.io/api" }

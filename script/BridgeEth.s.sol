@@ -6,7 +6,7 @@ import {CommonBase} from "forge-std/Base.sol";
 import {DecentEthRouter} from "src/DecentEthRouter.sol";
 import {DcntEth} from "src/DcntEth.sol";
 import {DeploymentHelpers} from "./DeploymentHelpers.sol";
-import {DeployedContext} from "./DeployedContext.sol";
+import {DeployedSrcDstContext} from "./DeployedSrcDstContext.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 
 contract BridgedWeth is ERC20("Wrapped Ether", "WETH", 18) {
@@ -15,20 +15,31 @@ contract BridgedWeth is ERC20("Wrapped Ether", "WETH", 18) {
     }
 }
 
-contract BridgeEth is Script, DeploymentHelpers, DeployedContext {
-    bool srcChainGasIsEth;
+contract BridgeEth is Script, DeploymentHelpers, DeployedSrcDstContext {
     uint64 DST_GAS_FOR_CALL = 120000;
+    bool isMainnet;
+
+    constructor() {
+        dstLzId = uint16(vm.envUint("DST_CHAIN_LZ_ID"));
+        srcChainAlias = vm.envString("SRC_CHAIN");
+        srcChainId = vm.envString("SRC_CHAIN_ID");
+        dstChainId = vm.envString("DST_CHAIN_ID");
+        isMainnet = vm.envBool("MAINNET");
+    }
 
     function run() public {
         vm.createSelectFork(srcChainAlias);
         vm.startBroadcast();
         address me = msg.sender;
-        uint amountToBridge = 10;
-        if (!srcChainGasIsEth) {
-            BridgedWeth weth = BridgedWeth(address(srcRouter.weth()));
-            weth.mint(address(this), amountToBridge);
-            weth.approve(address(srcRouter), amountToBridge);
+        uint amountToBridge = vm.envUint("AMOUNT");
+
+        bool srcChainGasIsEth = srcRouter.gasCurrencyisEth();
+        BridgedWeth weth = BridgedWeth(address(srcRouter.weth()));
+        if (!srcChainGasIsEth && !isMainnet) {
+            console2.log("approving");
+            weth.mint(me, amountToBridge);
         }
+        weth.approve(address(srcRouter), amountToBridge);
         (uint nativeFee, uint zroFee) = srcRouter.estimateSendAndCallFee(
             dstLzId,
             me, // us maybe inshallah?
@@ -51,27 +62,5 @@ contract BridgeEth is Script, DeploymentHelpers, DeployedContext {
         );
 
         vm.stopBroadcast();
-    }
-}
-
-contract BridgeSepoliaToFtm is BridgeEth {
-    constructor() {
-        srcChainGasIsEth = true;
-        uint16 FTM_LZ_ID = 10112;
-        srcChainAlias = "sepolia";
-        srcChainId = "11155111";
-        dstChainId = "4002";
-        dstLzId = FTM_LZ_ID;
-    }
-}
-
-contract BridgeFtmToSepolia is BridgeEth {
-    constructor() {
-        srcChainGasIsEth = false;
-        uint16 SEPOLIA_LZ_ID = 10161;
-        srcChainAlias = "ftm-testnet";
-        srcChainId = "4002";
-        dstChainId = "11155111";
-        dstLzId = SEPOLIA_LZ_ID;
     }
 }

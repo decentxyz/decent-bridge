@@ -5,7 +5,7 @@ import {DecentEthRouter} from "src/DecentEthRouter.sol";
 import {DcntEth} from "src/DcntEth.sol";
 import {DeploymentHelpers} from "./DeploymentHelpers.sol";
 
-contract DeployedContext is DeploymentHelpers {
+contract DeployedSrcDstContext is DeploymentHelpers {
     string srcChainAlias;
     string srcChainId;
     string dstChainId;

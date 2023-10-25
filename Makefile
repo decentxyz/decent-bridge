@@ -1,39 +1,62 @@
 include .env
 
-COMMON_PARAMS := --private-key=$(TESTNET_ACCOUNT) --slow --broadcast --verify -vvvv
+COMMON_PARAMS := --slow --broadcast --verify -vvvv
 
-bridge-e2e: deploy-router-all wire-up-all bridge-ftm-to-sepolia
-	echo "done!"
+ifeq ($(MAINNET),true)
+    COMMON_PARAMS += --private-key=$(MAINNET_ACCOUNT)
+else
+    COMMON_PARAMS += --private-key=$(TESTNET_ACCOUNT)
+endif
 
-bridge-ftm-to-sepolia:
-	SCRIPT_NAME=BridgeFtmToSepolia make bridge
+DECIMALS := 1000000000000000000 # for convenience
 
-bridge-sepolia-to-ftm:
-	SCRIPT_NAME=BridgeSepoliaToFtm make bridge
+add-liquidity:
+	$(eval LIQUIDITY=$(shell echo "scale=10; $(AMOUNT) * $(DECIMALS)" | bc | sed 's/\..*//'))
+	LIQUIDITY=$(LIQUIDITY) \
+	CHAIN_ID=$$(jq -r '.["$(CHAIN)"].chainId' deployConfig.json) \
+	MAINNET=$$(jq -r '.["$(CHAIN)"].isMainnet' deployConfig.json) \
+	forge script script/AddLiquidity.s.sol:AddLiquidity $(COMMON_PARAMS)
 
-bridge:
-	forge script script/BridgeEth.s.sol:$(SCRIPT_NAME) $(COMMON_PARAMS)
-
-WIREUP_CONFIGS := WireUpSepoliaToFtm WireUpFtmToSepolia
-
-wire-up-all:
-	@for script_name in $(WIREUP_CONFIGS); do \
-		(make wire-up SCRIPT_NAME=$$script_name &) \
-	done
-	@wait
+deploy:
+	CHAIN_ID=$$(jq -r '.["$(CHAIN)"].chainId' deployConfig.json) \
+	LZ_ENDPOINT=$$(jq -r '.["$(CHAIN)"].lzEndpoint' deployConfig.json) \
+	GAS_ETH=$$(jq -r '.["$(CHAIN)"].isGasEth' deployConfig.json) \
+	WETH=$$(jq -r '.["$(CHAIN)"].weth' deployConfig.json) \
+	MAINNET=$$(jq -r '.["$(CHAIN)"].isMainnet' deployConfig.json) \
+	forge script script/DeployRouter.s.sol:DeployToChain $(COMMON_PARAMS)
 
 wire-up:
-	forge script script/WireUpContracts.s.sol:$(SCRIPT_NAME) $(COMMON_PARAMS)
+	SRC_CHAIN_ID=$$(jq -r '.["$(SRC_CHAIN)"].chainId' deployConfig.json) \
+	DST_CHAIN_ID=$$(jq -r '.["$(DST_CHAIN)"].chainId' deployConfig.json) \
+	DST_CHAIN_LZ_ID=$$(jq -r '.["$(DST_CHAIN)"].lzId' deployConfig.json) \
+	forge script script/WireUpContracts.s.sol:WireUpContracts $(COMMON_PARAMS)
 
-ROUTERS := DeployFtm DeploySepolia
-deploy-router-all:
-	@for script_name in $(ROUTERS); do \
-  		(make deploy-router SCRIPT_NAME=$$script_name &) \
-	done
-	@wait
+bridge:
+	$(eval AMOUNT=$(shell echo "scale=10; $(AMOUNT) * $(DECIMALS)" | bc | sed 's/\..*//'))
+	AMOUNT=$(AMOUNT) \
+	SRC_CHAIN_ID=$$(jq -r '.["$(SRC_CHAIN)"].chainId' deployConfig.json) \
+	DST_CHAIN_ID=$$(jq -r '.["$(DST_CHAIN)"].chainId' deployConfig.json) \
+	DST_CHAIN_LZ_ID=$$(jq -r '.["$(DST_CHAIN)"].lzId' deployConfig.json) \
+	MAINNET=$$(jq -r '.["$(SRC_CHAIN)"].isMainnet' deployConfig.json) \
+	forge script script/BridgeEth.s.sol:BridgeEth $(COMMON_PARAMS)
 
-deploy-router:
-	forge script script/DeployRouter.s.sol:$(SCRIPT_NAME) $(COMMON_PARAMS)
+bridge-e2e:
+	CHAIN=$(FIRST_CHAIN) make deploy
+	CHAIN=$(SECOND_CHAIN) make deploy
+	AMOUNT=0.01 CHAIN=$(FIRST_CHAIN) make add-liquidity
+	AMOUNT=0.01 CHAIN=$(SECOND_CHAIN) make add-liquidity
+	SRC_CHAIN=$(FIRST_CHAIN) DST_CHAIN=$(SECOND_CHAIN) make wire-up
+	SRC_CHAIN=$(SECOND_CHAIN) DST_CHAIN=$(FIRST_CHAIN) make wire-up
+	AMOUNT=0.0069 SRC_CHAIN=$(FIRST_CHAIN) DST_CHAIN=$(SECOND_CHAIN) make bridge
+	AMOUNT=0.0069 SRC_CHAIN=$(SECOND_CHAIN) DST_CHAIN=$(FIRST_CHAIN) make bridge
+
+wire-up-bridge:
+	AMOUNT=0.01 CHAIN=$(FIRST_CHAIN) make add-liquidity
+	AMOUNT=0.01 CHAIN=$(SECOND_CHAIN) make add-liquidity
+	SRC_CHAIN=$(FIRST_CHAIN) DST_CHAIN=$(SECOND_CHAIN) make wire-up
+	SRC_CHAIN=$(SECOND_CHAIN) DST_CHAIN=$(FIRST_CHAIN) make wire-up
+	AMOUNT=0.0069 SRC_CHAIN=$(FIRST_CHAIN) DST_CHAIN=$(SECOND_CHAIN) make bridge
+	AMOUNT=0.0069 SRC_CHAIN=$(SECOND_CHAIN) DST_CHAIN=$(FIRST_CHAIN) make bridge
 
 ##### whole lotta convenience scripts
 watch-test:

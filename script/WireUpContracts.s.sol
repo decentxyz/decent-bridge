@@ -5,9 +5,9 @@ import "forge-std/Script.sol";
 import {DecentEthRouter} from "src/DecentEthRouter.sol";
 import {DcntEth} from "src/DcntEth.sol";
 import {DeploymentHelpers} from "./DeploymentHelpers.sol";
-import {DeployedContext} from "./DeployedContext.sol";
+import {DeployedSrcDstContext} from "./DeployedSrcDstContext.sol";
 
-contract WireUp is Script, DeploymentHelpers, DeployedContext {
+contract WireUp is Script, DeploymentHelpers, DeployedSrcDstContext {
     function run() public {
         uint chainFork = vm.createSelectFork(srcChainAlias);
         vm.startBroadcast();
@@ -21,22 +21,11 @@ contract WireUp is Script, DeploymentHelpers, DeployedContext {
     }
 }
 
-contract WireUpSepoliaToFtm is WireUp {
+contract WireUpContracts is WireUp {
     constructor() {
-        uint16 FTM_LZ_ID = 10112;
-        srcChainAlias = "sepolia";
-        srcChainId = "11155111";
-        dstChainId = "4002";
-        dstLzId = FTM_LZ_ID;
-    }
-}
-
-contract WireUpFtmToSepolia is WireUp {
-    constructor() {
-        uint16 SEPOLIA_LZ_ID = 10161;
-        srcChainAlias = "ftm-testnet";
-        srcChainId = "4002";
-        dstChainId = "11155111";
-        dstLzId = SEPOLIA_LZ_ID;
+        srcChainAlias = vm.envString("SRC_CHAIN");
+        srcChainId = vm.envString("SRC_CHAIN_ID");
+        dstChainId = vm.envString("DST_CHAIN_ID");
+        dstLzId = uint16(vm.envUint("DST_CHAIN_LZ_ID"));
     }
 }
