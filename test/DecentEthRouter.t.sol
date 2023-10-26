@@ -43,11 +43,7 @@ contract DecentEthRouterEthChainTest is CommonRouterSetup {
 
     function testBridgeEthShouldFailIfTheresNotEnoughLiquidity() public {
         addLiquidity(10);
-        (
-            uint16 dstLzOpId,
-            DecentEthRouter dstRouter,
-            DcntEth dstDcntEth
-        ) = setUpDstRouter();
+        (uint16 dstLzOpId, , ) = setUpDstRouter();
 
         uint amount = 20;
         address toAddress = msg.sender;

@@ -66,7 +66,6 @@ contract DecentEthRouter is IOFTReceiverV2 {
     function getCallParams(
         address _toAddress,
         uint16 _dstChainId,
-        uint _amount,
         uint64 _dstGasForCall
     )
         internal
@@ -77,7 +76,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
             bytes memory payload
         )
     {
-        bytes memory _payload = abi.encode(msg.sender);
+        bytes memory _payload = abi.encode(_toAddress);
         uint256 GAS_FOR_RELAY = 100000;
         uint256 gasAmount = GAS_FOR_RELAY + _dstGasForCall;
         bytes memory _adapterParams = abi.encodePacked(
@@ -99,7 +98,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
             bytes32 destinationBridge,
             bytes memory adapterParams,
             bytes memory _payload
-        ) = getCallParams(_toAddress, _dstChainId, _amount, _dstGasForCall);
+        ) = getCallParams(_toAddress, _dstChainId, _dstGasForCall);
         return
             dcntEth.estimateSendAndCallFee(
                 _dstChainId,
@@ -122,7 +121,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
             bytes32 destinationBridge,
             bytes memory adapterParams,
             bytes memory payload
-        ) = getCallParams(_toAddress, _dstChainId, _amount, _dstGasForCall);
+        ) = getCallParams(_toAddress, _dstChainId, _dstGasForCall);
 
         ICommonOFT.LzCallParams memory callParams = ICommonOFT.LzCallParams({
             refundAddress: payable(msg.sender),

@@ -25,7 +25,7 @@ contract AddLiquidity is Script, DeploymentHelpers, DeployedChainContext {
     }
 
     function run() public {
-        uint chainFork = vm.createSelectFork(chainAlias);
+        vm.createSelectFork(chainAlias);
         vm.startBroadcast();
 
         bool isGasEth = router.gasCurrencyisEth();

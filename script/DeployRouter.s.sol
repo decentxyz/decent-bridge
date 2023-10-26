@@ -24,7 +24,7 @@ contract DeployRouter is Script {
     function setupWeth() public virtual {}
 
     function run() public {
-        uint chainFork = vm.createSelectFork(chainAlias);
+        vm.createSelectFork(chainAlias);
         vm.startBroadcast();
         setupWeth();
         DecentEthRouter router = new DecentEthRouter(
@@ -37,7 +37,7 @@ contract DeployRouter is Script {
 }
 
 contract EnvironmentVarTest is Script {
-    function run() public {
+    function run() public view {
         string memory chainAlias = vm.envString("CHAIN");
         address lzEndpoint = vm.envAddress("LZ_ENDPOINT");
         bool isGasEth = vm.envBool("GAS_ETH");

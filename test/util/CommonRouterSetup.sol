@@ -18,17 +18,12 @@ contract CommonRouterSetup is Test {
 
     function setUpDstRouter()
         internal
-        returns (
-            uint16 dstLzOpId,
-            DecentEthRouter dstRouter,
-            DcntEth dstDcntEth
-        )
+        returns (uint16, DecentEthRouter, DcntEth)
     {
         uint16 dstLzOpId = 111;
         DecentEthRouter dstRouter = DecentEthRouter(payable(address(0xbeef)));
         DcntEth dstDcntEth = DcntEth(payable(address(0xdeed)));
         bytes memory path = abi.encodePacked(dstDcntEth, address(dcntEth));
-        uint16 PT_SEND_AND_CALL = router.PT_SEND_AND_CALL();
         vm.expectEmit(true, true, true, true);
         emit SetTrustedRemote(dstLzOpId, path);
         vm.expectEmit(true, true, true, true);
@@ -44,12 +39,7 @@ contract CommonRouterSetup is Test {
 
     uint64 DST_GAS_FOR_CALL = 120000;
 
-    function attemptBridge(
-        uint amount,
-        uint16 dstLzOpId,
-        DecentEthRouter dstRouter,
-        DcntEth dstDcntEth
-    ) internal {
+    function attemptBridge(uint amount, uint16 dstLzOpId) internal {
         address toAddress = msg.sender;
 
         (uint nativeFee, uint zroFee) = router.estimateSendAndCallFee(
@@ -68,13 +58,9 @@ contract CommonRouterSetup is Test {
     }
 
     function setupAndBridge(uint amount) internal {
-        (
-            uint16 dstLzOpId,
-            DecentEthRouter dstRouter,
-            DcntEth dstDcntEth
-        ) = setUpDstRouter();
+        (uint16 dstLzOpId, , ) = setUpDstRouter();
 
-        attemptBridge(amount, dstLzOpId, dstRouter, dstDcntEth);
+        attemptBridge(amount, dstLzOpId);
     }
 
     event ReceivedDecentEth(

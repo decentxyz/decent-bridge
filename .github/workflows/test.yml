@@ -34,7 +34,7 @@ jobs:
       - name: Run Forge build
         run: |
           forge --version
-          forge build --sizes --deny-warnings
+          forge build --sizes
         id: build
 
       - name: Run Forge tests

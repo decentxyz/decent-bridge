@@ -9,7 +9,7 @@ import {DeployedSrcDstContext} from "./DeployedSrcDstContext.sol";
 
 contract WireUp is Script, DeploymentHelpers, DeployedSrcDstContext {
     function run() public {
-        uint chainFork = vm.createSelectFork(srcChainAlias);
+        vm.createSelectFork(srcChainAlias);
         vm.startBroadcast();
         srcRouter.addDestinationBridge(
             dstLzId,
