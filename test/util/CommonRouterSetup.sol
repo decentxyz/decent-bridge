@@ -9,6 +9,9 @@ contract CommonRouterSetup is Test {
     DcntEth dcntEth;
     uint MIN_DST_GAS = 100000;
 
+    address alice = address(0xbeef);
+    address bob = address(0xfeeb);
+
     event SetTrustedRemote(uint16 _remoteChainId, bytes _path);
     event SetMinDstGas(uint16 _dstChainId, uint16 _type, uint _minDstGas);
     uint16 public constant PT_SEND_AND_CALL = 1;
@@ -72,5 +75,39 @@ contract CommonRouterSetup is Test {
         ) = setUpDstRouter();
 
         attemptBridge(amount, dstLzOpId, dstRouter, dstDcntEth);
+    }
+
+    event ReceivedDecentEth(
+        uint16 _srcChainId,
+        address from,
+        address _to,
+        uint amount
+    );
+
+    // Emulating the reception of dcntEth from the bridge;
+    function receiveSomeEth(
+        address _from,
+        address _to,
+        uint256 amount
+    ) internal {
+        uint16 srcChainId = 69;
+        uint64 _nonce = 0;
+        bytes memory _srcAddress = abi.encode(address(0xdeadbeef));
+        bytes32 from = bytes32(abi.encode(_from)); // bytes32(bytes(bob));
+        bytes memory _payload = abi.encode(_to);
+
+        vm.startPrank(address(router));
+        dcntEth.mint(address(router), amount);
+
+        vm.expectEmit(true, true, true, true);
+        emit ReceivedDecentEth(srcChainId, _from, _to, amount);
+        router.onOFTReceived(
+            srcChainId,
+            _srcAddress,
+            _nonce,
+            from,
+            amount,
+            _payload
+        );
     }
 }

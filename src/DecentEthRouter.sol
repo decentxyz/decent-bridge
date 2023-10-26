@@ -27,6 +27,23 @@ contract DecentEthRouter is IOFTReceiverV2 {
         _;
     }
 
+    modifier onlyIfWeHaveEnoughReserves(uint256 amount) {
+        require(weth.balanceOf(address(this)) > amount, "not enough reserves");
+        _;
+    }
+
+    modifier userDepositing(uint256 amount) {
+        balanceOf[msg.sender] += amount;
+        _;
+    }
+
+    modifier userIsWithdrawing(uint256 amount) {
+        uint256 balance = balanceOf[msg.sender];
+        require(balance >= amount, "not enough balance");
+        _;
+        balanceOf[msg.sender] -= amount;
+    }
+
     function deployDcntEth(address lzEndpoint) public {
         dcntEth = new DcntEth(lzEndpoint);
     }
@@ -133,7 +150,12 @@ contract DecentEthRouter is IOFTReceiverV2 {
         );
     }
 
-    event ReceivedDecentEth(uint amount, address _to);
+    event ReceivedDecentEth(
+        uint16 _srcChainId,
+        address from,
+        address _to,
+        uint amount
+    );
 
     function onOFTReceived(
         uint16 _srcChainId,
@@ -144,7 +166,18 @@ contract DecentEthRouter is IOFTReceiverV2 {
         bytes memory _payload
     ) external override {
         address _to = abi.decode(_payload, (address));
-        emit ReceivedDecentEth(_amount, _to);
+        emit ReceivedDecentEth(
+            _srcChainId,
+            address(uint160(uint256(_from))),
+            _to,
+            _amount
+        );
+
+        if (weth.balanceOf(address(this)) < _amount) {
+            dcntEth.transfer(_to, _amount);
+            return;
+        }
+
         if (gasCurrencyisEth) {
             weth.withdraw(_amount);
             payable(_to).transfer(_amount);
@@ -153,23 +186,51 @@ contract DecentEthRouter is IOFTReceiverV2 {
         }
     }
 
-    function addLiquidityEth() public payable onlyEthChain {
+    function redeemEth(
+        uint256 amount
+    ) public onlyIfWeHaveEnoughReserves(amount) {
+        dcntEth.transferFrom(msg.sender, address(this), amount);
+        weth.withdraw(amount);
+        payable(msg.sender).transfer(amount);
+    }
+
+    function redeemWeth(
+        uint256 amount
+    ) public onlyIfWeHaveEnoughReserves(amount) {
+        dcntEth.transferFrom(msg.sender, address(this), amount);
+        weth.transfer(msg.sender, amount);
+    }
+
+    mapping(address => uint256) public balanceOf;
+
+    function addLiquidityEth()
+        public
+        payable
+        onlyEthChain
+        userDepositing(msg.value)
+    {
         weth.deposit{value: msg.value}();
         dcntEth.mint(address(this), msg.value);
     }
 
-    function removeLiquidityEth(uint256 amount) public onlyEthChain {
+    function removeLiquidityEth(
+        uint256 amount
+    ) public onlyEthChain userIsWithdrawing(amount) {
         dcntEth.burn(address(this), amount);
         weth.withdraw(amount);
         payable(msg.sender).transfer(amount);
     }
 
-    function addLiquidityWeth(uint256 amount) public payable {
+    function addLiquidityWeth(
+        uint256 amount
+    ) public payable userDepositing(amount) {
         weth.transferFrom(msg.sender, address(this), amount);
         dcntEth.mint(address(this), amount);
     }
 
-    function removeLiquidityWeth(uint256 amount) public {
+    function removeLiquidityWeth(
+        uint256 amount
+    ) public userIsWithdrawing(amount) {
         dcntEth.burn(address(this), amount);
         weth.transfer(msg.sender, amount);
     }

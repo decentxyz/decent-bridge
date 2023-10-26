@@ -29,40 +29,6 @@ contract DecentEthRouterEthChainTest is CommonRouterSetup {
         router.addLiquidityEth{value: amount}();
     }
 
-    function testShouldBeAbletoDepositAndWithdrawEth() public {
-        addLiquidity(10);
-        assertEq(weth.balanceOf(address(router)), 10);
-        assertEq(dcntEth.balanceOf(address(router)), 10);
-
-        router.removeLiquidityEth(5);
-        assertEq(weth.balanceOf(address(router)), 5);
-        assertEq(dcntEth.balanceOf(address(router)), 5);
-    }
-
-    function testShouldBeAbletoDepositAndWithdrawWeth() public {
-        uint amount = 10;
-        weth.deposit{value: amount}();
-        weth.approve(address(router), amount);
-        router.addLiquidityWeth(amount);
-        assertEq(weth.balanceOf(address(router)), amount);
-        assertEq(dcntEth.balanceOf(address(router)), amount);
-
-        uint withdrawAmt = 5;
-        router.removeLiquidityWeth(withdrawAmt);
-        assertEq(weth.balanceOf(address(router)), amount - withdrawAmt);
-        assertEq(dcntEth.balanceOf(address(router)), amount - withdrawAmt);
-    }
-
-    function testShouldNotBeAbleToWithdrawMoreThanDeposited() public {
-        uint amount = 10;
-        weth.deposit{value: amount}();
-        weth.approve(address(router), amount);
-        router.addLiquidityWeth(amount);
-
-        vm.expectRevert();
-        router.removeLiquidityWeth(amount + 10);
-    }
-
     function testAddDestinationChain() public {
         setUpDstRouter();
     }

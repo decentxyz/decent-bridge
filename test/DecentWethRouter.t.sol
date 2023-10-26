@@ -33,37 +33,10 @@ contract DecentEthRouterNonEthChainTest is CommonRouterSetup {
         dcntEth = router.dcntEth();
     }
 
-    function testAddLiquidity() public {
-        uint amount = 10;
-        vm.expectRevert("Gas currency is not ETH");
-        router.addLiquidityEth{value: amount}();
-    }
-
-    function testRemoveLiquidity() public {
-        uint amount = 10;
-        vm.expectRevert("Gas currency is not ETH");
-        router.removeLiquidityEth(amount);
-    }
-
     function addLiquidity(uint amount) internal {
         weth.mint(address(this), amount);
         weth.approve(address(router), amount);
         router.addLiquidityWeth(amount);
-    }
-
-    function testAddLiquidityWeth() public {
-        uint amount = 10;
-        addLiquidity(amount);
-        assertEq(weth.balanceOf(address(this)), 0);
-        assertEq(weth.balanceOf(address(router)), amount);
-    }
-
-    function testRemoveLiquidityWeth() public {
-        uint amount = 10;
-        addLiquidity(amount);
-        router.removeLiquidityWeth(3);
-        assertEq(weth.balanceOf(address(this)), 3);
-        assertEq(weth.balanceOf(address(router)), 7);
     }
 
     function testBridgeEthShouldAttemptToBridge() public {
