@@ -6,7 +6,13 @@ on:
     branches: [main, master]
 
 env:
-  FOUNDRY_PROFILE: ci
+  FTM_TESTNET_RPC: https://rpc.testnet.fantom.network
+  FUJI_RPC: https://api.avax-test.network/ext/bc/C/rpc
+  SEPOLIA_RPC: https://ethereum-sepolia.publicnode.com
+  OPTIMISM_RPC: https://opt-mainnet.g.alchemy.com/v2/b2LqFK84MRXD5EGc-mqVXANMRRp7xJJk
+  ZORA_RPC: https://rpc.zora.energy
+  ARBITRUM_RPC: https://arb-mainnet.g.alchemy.com/v2/Zb6wy-KMcT3v6JL7i9akUQqfY4POr6y0
+  POLYGON_RPC: https://polygon-mainnet.g.alchemy.com/v2/4hyEXaJkobB3PWy7axMC1brqsaWV8qO1
 
 jobs:
   check:
