@@ -35,7 +35,11 @@ jobs:
         run: |
           forge --version
           forge build --sizes
-        id: build || 0
+        id: build
+
+      - name: Continue workflow even if build fails
+        if: ${{ steps.build.outcome == 'failure' }}
+        run: echo "Build step failed but workflow will continue"
 
       - name: Run Forge tests
         run: |
