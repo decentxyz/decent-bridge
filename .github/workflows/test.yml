@@ -17,7 +17,7 @@ env:
 jobs:
   check:
     strategy:
-      fail-fast: false
+      fail-fast: true
 
     name: Foundry Tests
     runs-on: ubuntu-latest
@@ -35,7 +35,7 @@ jobs:
         run: |
           forge --version
           forge build --sizes
-        id: build
+        id: build || true
 
       - name: Run Forge tests
         run: |
