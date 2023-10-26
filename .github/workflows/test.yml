@@ -1,6 +1,9 @@
-name: test
-
-on: workflow_dispatch
+name: Foundry Tests
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
 
 env:
   FOUNDRY_PROFILE: ci
