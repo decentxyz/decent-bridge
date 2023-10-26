@@ -17,9 +17,9 @@ env:
 jobs:
   check:
     strategy:
-      fail-fast: true
+      fail-fast: false
 
-    name: Foundry project
+    name: Foundry Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
