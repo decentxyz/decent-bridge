@@ -12,8 +12,8 @@ import {CommonRouterSetup} from "test/util/CommonRouterSetup.sol";
 import {BridgedWeth} from "./DecentWethRouter.t.sol";
 
 contract DecentEthRouterNonEthChainTest is CommonRouterSetup {
-    //TestConfig testConfig = new TestConfig();
-    //address lzEndpoint = testConfig.readLzEndpoint("avalanche");
+    // TestConfig testConfig = new TestConfig();
+    // address lzEndpoint = testConfig.readLzEndpoint("avalanche");
     // polygon mainnet
     BridgedWeth weth;
     address lzEndpointPolygon = 0x3c2269811836af69497E5F486A85D7316753cf62;

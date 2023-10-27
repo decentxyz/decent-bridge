@@ -17,9 +17,6 @@ contract BridgedWeth is ERC20("Wrapped Ether", "WETH", 18) {
 }
 
 contract DecentEthRouterNonEthChainTest is CommonRouterSetup {
-    //TestConfig testConfig = new TestConfig();
-    //address lzEndpoint = testConfig.readLzEndpoint("avalanche");
-    // polygon mainnet
     BridgedWeth weth;
     address lzEndpointPolygon = 0x3c2269811836af69497E5F486A85D7316753cf62;
     bool isGasEth = false;
