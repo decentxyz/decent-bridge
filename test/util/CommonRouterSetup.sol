@@ -50,10 +50,11 @@ contract CommonRouterSetup is Test {
 
     function attemptBridge(
         DecentEthRouter router,
+        address fromAddress,
         address toAddress,
         uint amount,
         uint16 dstLzOpId
-    ) internal {
+    ) internal returns (uint, uint) {
         (uint nativeFee, uint zroFee) = router.estimateSendAndCallFee(
             dstLzOpId,
             toAddress,
@@ -61,17 +62,22 @@ contract CommonRouterSetup is Test {
             DST_GAS_FOR_CALL
         );
 
-        router.bridgeEth{value: amount + nativeFee + zroFee}(
+        uint fee = nativeFee + zroFee;
+
+        vm.prank(fromAddress);
+        router.bridgeEth{value: amount + fee}(
             dstLzOpId,
             toAddress,
             amount,
             DST_GAS_FOR_CALL
         );
+
+        return (nativeFee, zroFee);
     }
 
     function setupAndBridge(uint amount) internal {
         (uint16 dstLzOpId, , ) = setUpDstRouter();
-        attemptBridge(router, msg.sender, amount, dstLzOpId);
+        attemptBridge(router, msg.sender, msg.sender, amount, dstLzOpId);
     }
 
     event ReceivedDecentEth(

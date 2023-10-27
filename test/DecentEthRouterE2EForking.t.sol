@@ -9,6 +9,32 @@ import {WETH} from "solmate/tokens/WETH.sol";
 import {DecentEthRouter} from "src/DecentEthRouter.sol";
 import {DcntEth} from "src/DcntEth.sol";
 import {CommonRouterSetup} from "test/util/CommonRouterSetup.sol";
+import {ILayerZeroEndpoint} from "LayerZero/interfaces/ILayerZeroEndpoint.sol";
+
+abstract contract Endpoint is ILayerZeroEndpoint {
+    address public defaultReceiveLibraryAddress;
+}
+
+contract OpenDcntEth is DcntEth {
+    constructor(address _layerZeroEndpoint) DcntEth(_layerZeroEndpoint) {}
+
+    function encodeSendAndCallPayload(
+        address _from,
+        address _toAddress,
+        uint _amount,
+        bytes memory _payload,
+        uint64 _dstGasForCall
+    ) external view virtual returns (bytes memory) {
+        return
+            _encodeSendAndCallPayload(
+                _from,
+                bytes32(abi.encode(_toAddress)),
+                _ld2sd(_amount),
+                _payload,
+                _dstGasForCall
+            );
+    }
+}
 
 contract DecentEthRouterEthChainTest is CommonRouterSetup {
     string firstChain = "arbitrum";
@@ -20,8 +46,10 @@ contract DecentEthRouterEthChainTest is CommonRouterSetup {
     uint16 firstLzId = 110;
     uint16 secondLzId = 110;
 
-    address firstLzEndpoint = 0x3c2269811836af69497E5F486A85D7316753cf62;
-    address secondLzEndpoint = 0x3c2269811836af69497E5F486A85D7316753cf62;
+    Endpoint firstLzEndpoint =
+        Endpoint(0x3c2269811836af69497E5F486A85D7316753cf62);
+    Endpoint secondLzEndpoint =
+        Endpoint(0x3c2269811836af69497E5F486A85D7316753cf62);
 
     DecentEthRouter firstRouter;
     DecentEthRouter secondRouter;
@@ -29,8 +57,8 @@ contract DecentEthRouterEthChainTest is CommonRouterSetup {
     uint256 firstFork;
     uint256 secondFork;
 
-    DcntEth firstDcntEth;
-    DcntEth secondDcntEth;
+    OpenDcntEth firstDcntEth;
+    OpenDcntEth secondDcntEth;
 
     bool firstGasIsEth = true;
     bool secondGasIsEth = true;
@@ -38,14 +66,16 @@ contract DecentEthRouterEthChainTest is CommonRouterSetup {
     function forkAndDeploy(
         string memory chain,
         address payable weth,
+        ILayerZeroEndpoint lzEndpoint,
         bool gasIsEth,
         uint256 liquidity
-    ) internal returns (uint256, DecentEthRouter, DcntEth) {
+    ) internal returns (uint256, DecentEthRouter, OpenDcntEth) {
         uint256 fork = vm.createSelectFork(chain);
         DecentEthRouter router = new DecentEthRouter(weth, gasIsEth);
-        router.deployDcntEth(firstLzEndpoint);
+        OpenDcntEth dcntEth = new OpenDcntEth(address(lzEndpoint));
+        router.registerDcntEth(address(dcntEth));
+        dcntEth.transferOwnership(address(router));
         router.addLiquidityEth{value: liquidity}();
-        DcntEth dcntEth = DcntEth(router.dcntEth());
         return (fork, router, dcntEth);
     }
 
@@ -53,6 +83,7 @@ contract DecentEthRouterEthChainTest is CommonRouterSetup {
         (firstFork, firstRouter, firstDcntEth) = forkAndDeploy(
             firstChain,
             payable(address(firstWeth)),
+            firstLzEndpoint,
             firstGasIsEth,
             10 ether
         );
@@ -62,6 +93,7 @@ contract DecentEthRouterEthChainTest is CommonRouterSetup {
         (secondFork, secondRouter, secondDcntEth) = forkAndDeploy(
             secondChain,
             payable(address(secondWeth)),
+            secondLzEndpoint,
             secondGasIsEth,
             10 ether
         );
@@ -108,15 +140,85 @@ contract DecentEthRouterEthChainTest is CommonRouterSetup {
         );
     }
 
-    function testDoNothingYet() public {
+    function receiveOFT(
+        address fromAddress,
+        address toAddress,
+        OpenDcntEth srcDcntEth,
+        OpenDcntEth dstDcntEth,
+        DecentEthRouter srcRouter,
+        DecentEthRouter dstRouter,
+        Endpoint dstLzEndpoint,
+        uint256 amount,
+        uint256 dstFork,
+        uint16 srcLzId
+    ) public {
+        bytes memory oftPayload = abi.encode(fromAddress, toAddress);
+
+        bytes memory lzPayload = firstDcntEth.encodeSendAndCallPayload(
+            address(srcRouter), // first router (has decent eth)
+            address(dstRouter), // to address (has decent eth)
+            amount,
+            oftPayload, // will have the recipients address
+            DST_GAS_FOR_CALL
+        );
+
+        vm.selectFork(dstFork);
+
+        uint64 nonce = dstLzEndpoint.getInboundNonce(
+            srcLzId,
+            abi.encode(address(srcDcntEth))
+        );
+
+        address defaultLibAddress = dstLzEndpoint
+            .defaultReceiveLibraryAddress();
+
+        vm.deal(defaultLibAddress, 1 ether);
+        vm.prank(defaultLibAddress);
+        secondLzEndpoint.receivePayload(
+            srcLzId, // src chain id
+            abi.encodePacked(address(srcDcntEth), address(dstDcntEth)), // src address
+            address(dstDcntEth), // dst address
+            nonce + 1, // nonce
+            DST_GAS_FOR_CALL * 2, // gas limit
+            lzPayload // payload
+        );
+    }
+
+    function testBridgeEndToEndFromSourceToDestination() public {
         vm.selectFork(firstFork);
-        attemptBridge(firstRouter, msg.sender, 1 ether, secondLzId);
-        assertEq(firstWeth.balanceOf(address(firstRouter)), 11 ether);
+        uint amount = 1 ether;
 
-        vm.selectFork(secondFork);
+        vm.deal(alice, 4 ether);
+        vm.prank(alice);
+        (uint nativeFee, uint zroFee) = attemptBridge(
+            firstRouter,
+            alice,
+            bob,
+            amount,
+            secondLzId
+        );
+        assertEq(firstWeth.balanceOf(address(firstRouter)), 10 ether + amount);
+        assertEq(alice.balance, 3 ether - nativeFee - zroFee); // alice sent her money
 
+        receiveOFT(
+            alice,
+            bob,
+            firstDcntEth,
+            secondDcntEth,
+            firstRouter,
+            secondRouter,
+            firstLzEndpoint,
+            amount,
+            secondFork,
+            firstLzId
+        );
 
+        assertEq(
+            secondWeth.balanceOf(address(secondRouter)),
+            10 ether - amount
+        );
 
+        assertEq(bob.balance, amount); // bob received his money
     }
 
     // Function to receive Ether. msg.data must be empty

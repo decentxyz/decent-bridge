@@ -48,6 +48,10 @@ contract DecentEthRouter is IOFTReceiverV2 {
         dcntEth = new DcntEth(lzEndpoint);
     }
 
+    function registerDcntEth(address _addr) public {
+        dcntEth = DcntEth(_addr);
+    }
+
     function addDestinationBridge(
         uint16 _dstChainId,
         address _routerAddress,
@@ -76,7 +80,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
             bytes memory payload
         )
     {
-        bytes memory _payload = abi.encode(_toAddress);
+        bytes memory _payload = abi.encode(msg.sender, _toAddress);
         uint256 GAS_FOR_RELAY = 100000;
         uint256 gasAmount = GAS_FOR_RELAY + _dstGasForCall;
         bytes memory _adapterParams = abi.encodePacked(
@@ -107,7 +111,8 @@ contract DecentEthRouter is IOFTReceiverV2 {
                 _payload,
                 _dstGasForCall,
                 false, // useZero
-                adapterParams // relayer adapter parameters
+                adapterParams // Relayer adapter parameters
+                // contains packet type (send and call in this case) and gasAmount
             );
     }
 
@@ -139,13 +144,13 @@ contract DecentEthRouter is IOFTReceiverV2 {
         }
 
         dcntEth.sendAndCall{value: gasValue}(
-            address(this), // from
+            address(this), // from address that has dcntEth (so DecentRouter)
             _dstChainId,
             destinationBridge, // toAddress
             _amount, // amount
-            payload, //payload
+            payload, //payload (will have recipients address)
             _dstGasForCall, // dstGasForCall
-            callParams
+            callParams // refundAddress, zroPaymentAddress, adapterParams
         );
     }
 
@@ -160,17 +165,12 @@ contract DecentEthRouter is IOFTReceiverV2 {
         uint16 _srcChainId,
         bytes calldata,
         uint64,
-        bytes32 _from,
+        bytes32,
         uint _amount,
         bytes memory _payload
     ) external override {
-        address _to = abi.decode(_payload, (address));
-        emit ReceivedDecentEth(
-            _srcChainId,
-            address(uint160(uint256(_from))),
-            _to,
-            _amount
-        );
+        (address from, address _to) = abi.decode(_payload, (address, address));
+        emit ReceivedDecentEth(_srcChainId, from, _to, _amount);
 
         if (weth.balanceOf(address(this)) < _amount) {
             dcntEth.transfer(_to, _amount);
