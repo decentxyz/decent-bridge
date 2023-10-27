@@ -13,6 +13,3 @@
 [submodule "lib/LayerZero"]
 	path = lib/LayerZero
 	url = https://github.com/LayerZero-Labs/LayerZero
-[submodule "lib/UTB"]
-	path = lib/UTB
-	url = https://github.com/decentxyz/UTB
