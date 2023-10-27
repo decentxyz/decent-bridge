@@ -97,7 +97,7 @@ contract CommonRouterSetup is Test {
         uint64 _nonce = 0;
         bytes memory _srcAddress = abi.encode(address(0xdeadbeef));
         bytes32 from = bytes32(abi.encode(_from)); // bytes32(bytes(bob));
-        bytes memory _payload = abi.encode(_to);
+        bytes memory _payload = abi.encode(_from, _to);
 
         vm.startPrank(address(router));
         dcntEth.mint(address(router), amount);
