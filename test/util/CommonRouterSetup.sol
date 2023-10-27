@@ -39,9 +39,21 @@ contract CommonRouterSetup is Test {
 
     uint64 DST_GAS_FOR_CALL = 120000;
 
-    function attemptBridge(uint amount, uint16 dstLzOpId) internal {
-        address toAddress = msg.sender;
+    event SendToChain(
+        uint16 indexed _dstChainId,
+        address indexed _from,
+        bytes32 indexed _toAddress,
+        uint _amount
+    );
 
+    event DummyEvent();
+
+    function attemptBridge(
+        DecentEthRouter router,
+        address toAddress,
+        uint amount,
+        uint16 dstLzOpId
+    ) internal {
         (uint nativeFee, uint zroFee) = router.estimateSendAndCallFee(
             dstLzOpId,
             toAddress,
@@ -59,8 +71,7 @@ contract CommonRouterSetup is Test {
 
     function setupAndBridge(uint amount) internal {
         (uint16 dstLzOpId, , ) = setUpDstRouter();
-
-        attemptBridge(amount, dstLzOpId);
+        attemptBridge(router, msg.sender, amount, dstLzOpId);
     }
 
     event ReceivedDecentEth(
