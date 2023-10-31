@@ -70,7 +70,8 @@ contract DecentEthRouter is IOFTReceiverV2 {
     function getCallParams(
         address _toAddress,
         uint16 _dstChainId,
-        uint64 _dstGasForCall
+        uint64 _dstGasForCall,
+        bytes memory additionalPayload
     )
         internal
         view
@@ -80,29 +81,25 @@ contract DecentEthRouter is IOFTReceiverV2 {
             bytes memory payload
         )
     {
-        bytes memory _payload = abi.encode(msg.sender, _toAddress);
         uint256 GAS_FOR_RELAY = 100000;
         uint256 gasAmount = GAS_FOR_RELAY + _dstGasForCall;
-        bytes memory _adapterParams = abi.encodePacked(
-            PT_SEND_AND_CALL,
-            gasAmount
-        );
-        address _dstBridge = destinationBridges[_dstChainId];
-        bytes32 destinationBridge = bytes32(abi.encode(_dstBridge));
-        return (destinationBridge, _adapterParams, _payload);
+        adapterParams = abi.encodePacked(PT_SEND_AND_CALL, gasAmount);
+        destBridge = bytes32(abi.encode(destinationBridges[_dstChainId]));
+        payload = abi.encode(msg.sender, _toAddress, additionalPayload);
     }
 
     function estimateSendAndCallFee(
         uint16 _dstChainId,
         address _toAddress,
         uint _amount,
-        uint64 _dstGasForCall
+        uint64 _dstGasForCall,
+        bytes memory payload
     ) public view returns (uint nativeFee, uint zroFee) {
         (
             bytes32 destinationBridge,
             bytes memory adapterParams,
             bytes memory _payload
-        ) = getCallParams(_toAddress, _dstChainId, _dstGasForCall);
+        ) = getCallParams(_toAddress, _dstChainId, _dstGasForCall, payload);
         return
             dcntEth.estimateSendAndCallFee(
                 _dstChainId,
@@ -116,17 +113,24 @@ contract DecentEthRouter is IOFTReceiverV2 {
             );
     }
 
-    function bridgeEth(
+    function _bridgeWithPayload(
         uint16 _dstChainId,
         address _toAddress,
         uint _amount,
-        uint64 _dstGasForCall
-    ) public payable {
+        uint64 _dstGasForCall,
+        bytes memory additionalPayload,
+        bool isEth
+    ) internal {
         (
             bytes32 destinationBridge,
             bytes memory adapterParams,
             bytes memory payload
-        ) = getCallParams(_toAddress, _dstChainId, _dstGasForCall);
+        ) = getCallParams(
+                _toAddress,
+                _dstChainId,
+                _dstGasForCall,
+                additionalPayload
+            );
 
         ICommonOFT.LzCallParams memory callParams = ICommonOFT.LzCallParams({
             refundAddress: payable(msg.sender),
@@ -135,7 +139,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
         });
 
         uint gasValue;
-        if (gasCurrencyisEth) {
+        if (isEth) {
             weth.deposit{value: _amount}();
             gasValue = msg.value - _amount;
         } else {
@@ -154,11 +158,62 @@ contract DecentEthRouter is IOFTReceiverV2 {
         );
     }
 
+    function bridgeWithPayload(
+        uint16 _dstChainId,
+        address _toAddress,
+        uint _amount,
+        uint64 _dstGasForCall,
+        bytes memory additionalPayload
+    ) public payable {
+        return
+            _bridgeWithPayload(
+                _dstChainId,
+                _toAddress,
+                _amount,
+                _dstGasForCall,
+                additionalPayload,
+                false
+            );
+    }
+
+    function bridgeEth(
+        uint16 _dstChainId,
+        address _toAddress,
+        uint _amount,
+        uint64 _dstGasForCall
+    ) public payable onlyEthChain {
+        _bridgeWithPayload(
+            _dstChainId,
+            _toAddress,
+            _amount,
+            _dstGasForCall,
+            bytes(""),
+            true
+        );
+    }
+
+    function bridgeWeth(
+        uint16 _dstChainId,
+        address _toAddress,
+        uint _amount,
+        uint64 _dstGasForCall
+    ) public payable {
+        _bridgeWithPayload(
+            _dstChainId,
+            _toAddress,
+            _amount,
+            _dstGasForCall,
+            bytes(""),
+            false
+        );
+    }
+
     event ReceivedDecentEth(
         uint16 _srcChainId,
         address from,
         address _to,
-        uint amount
+        uint amount,
+        bytes payload
     );
 
     function onOFTReceived(
@@ -169,8 +224,15 @@ contract DecentEthRouter is IOFTReceiverV2 {
         uint _amount,
         bytes memory _payload
     ) external override {
-        (address from, address _to) = abi.decode(_payload, (address, address));
-        emit ReceivedDecentEth(_srcChainId, from, _to, _amount);
+        (address from, address _to, bytes memory additionalPayload) = abi
+            .decode(_payload, (address, address, bytes));
+        emit ReceivedDecentEth(
+            _srcChainId,
+            from,
+            _to,
+            _amount,
+            additionalPayload
+        );
 
         if (weth.balanceOf(address(this)) < _amount) {
             dcntEth.transfer(_to, _amount);
