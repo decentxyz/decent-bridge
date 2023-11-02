@@ -33,7 +33,7 @@ contract BridgeEth is Script, DeploymentHelpers, DeployedSrcDstContext {
         address me = msg.sender;
         uint amountToBridge = vm.envUint("AMOUNT");
 
-        bool srcChainGasIsEth = srcRouter.gasCurrencyisEth();
+        bool srcChainGasIsEth = srcRouter.gasCurrencyIsEth();
         BridgedWeth weth = BridgedWeth(address(srcRouter.weth()));
         if (!srcChainGasIsEth && !isMainnet) {
             console2.log("approving");

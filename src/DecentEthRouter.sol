@@ -10,20 +10,23 @@ contract DecentEthRouter is IOFTReceiverV2 {
     WETH public weth;
     DcntEth public dcntEth;
 
-    uint16 public constant PT_SEND = 0;
+    uint8 public constant MT_ETH_TRANSFER = 0;
+    uint8 public constant MT_ETH_TRANSFER_WITH_PAYLOAD = 1;
+
     uint16 public constant PT_SEND_AND_CALL = 1;
-    bool public gasCurrencyisEth; // for chains that use ETH as gas currency
+
+    bool public gasCurrencyIsEth; // for chains that use ETH as gas currency
 
     mapping(uint16 => address) public destinationBridges;
     mapping(uint16 => address) public destinationDcntEth;
 
     constructor(address payable _wethAddress, bool gasIsEth) {
         weth = WETH(_wethAddress);
-        gasCurrencyisEth = gasIsEth;
+        gasCurrencyIsEth = gasIsEth;
     }
 
     modifier onlyEthChain() {
-        require(gasCurrencyisEth, "Gas currency is not ETH");
+        require(gasCurrencyIsEth, "Gas currency is not ETH");
         _;
     }
 
@@ -68,6 +71,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
     }
 
     function getCallParams(
+        uint8 msgType,
         address _toAddress,
         uint16 _dstChainId,
         uint64 _dstGasForCall,
@@ -85,10 +89,21 @@ contract DecentEthRouter is IOFTReceiverV2 {
         uint256 gasAmount = GAS_FOR_RELAY + _dstGasForCall;
         adapterParams = abi.encodePacked(PT_SEND_AND_CALL, gasAmount);
         destBridge = bytes32(abi.encode(destinationBridges[_dstChainId]));
-        payload = abi.encode(msg.sender, _toAddress, additionalPayload);
+
+        if (msgType == MT_ETH_TRANSFER) {
+            payload = abi.encode(msgType, msg.sender, _toAddress);
+        } else {
+            payload = abi.encode(
+                msgType,
+                msg.sender,
+                _toAddress,
+                additionalPayload
+            );
+        }
     }
 
     function estimateSendAndCallFee(
+        uint8 msgType,
         uint16 _dstChainId,
         address _toAddress,
         uint _amount,
@@ -99,7 +114,14 @@ contract DecentEthRouter is IOFTReceiverV2 {
             bytes32 destinationBridge,
             bytes memory adapterParams,
             bytes memory _payload
-        ) = getCallParams(_toAddress, _dstChainId, _dstGasForCall, payload);
+        ) = getCallParams(
+                msgType,
+                _toAddress,
+                _dstChainId,
+                _dstGasForCall,
+                payload
+            );
+
         return
             dcntEth.estimateSendAndCallFee(
                 _dstChainId,
@@ -114,6 +136,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
     }
 
     function _bridgeWithPayload(
+        uint8 msgType,
         uint16 _dstChainId,
         address _toAddress,
         uint _amount,
@@ -126,6 +149,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
             bytes memory adapterParams,
             bytes memory payload
         ) = getCallParams(
+                msgType,
                 _toAddress,
                 _dstChainId,
                 _dstGasForCall,
@@ -167,6 +191,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
     ) public payable {
         return
             _bridgeWithPayload(
+                MT_ETH_TRANSFER_WITH_PAYLOAD,
                 _dstChainId,
                 _toAddress,
                 _amount,
@@ -183,6 +208,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
         uint64 _dstGasForCall
     ) public payable onlyEthChain {
         _bridgeWithPayload(
+            MT_ETH_TRANSFER,
             _dstChainId,
             _toAddress,
             _amount,
@@ -199,6 +225,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
         uint64 _dstGasForCall
     ) public payable {
         _bridgeWithPayload(
+            MT_ETH_TRANSFER,
             _dstChainId,
             _toAddress,
             _amount,
@@ -209,6 +236,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
     }
 
     event ReceivedDecentEth(
+        uint8 msgType,
         uint16 _srcChainId,
         address from,
         address _to,
@@ -224,14 +252,20 @@ contract DecentEthRouter is IOFTReceiverV2 {
         uint _amount,
         bytes memory _payload
     ) external override {
-        (address from, address _to, bytes memory additionalPayload) = abi
-            .decode(_payload, (address, address, bytes));
+        (
+            uint8 msgType,
+            address _from,
+            address _to,
+            bytes memory callPayload
+        ) = abi.decode(_payload, (uint8, address, address, bytes));
+
         emit ReceivedDecentEth(
+            msgType,
             _srcChainId,
-            from,
+            _from,
             _to,
             _amount,
-            additionalPayload
+            callPayload
         );
 
         if (weth.balanceOf(address(this)) < _amount) {
@@ -239,11 +273,19 @@ contract DecentEthRouter is IOFTReceiverV2 {
             return;
         }
 
-        if (gasCurrencyisEth) {
-            weth.withdraw(_amount);
-            payable(_to).transfer(_amount);
+        if (msgType == MT_ETH_TRANSFER) {
+            if (gasCurrencyIsEth) {
+                weth.withdraw(_amount);
+                payable(_to).transfer(_amount);
+            } else {
+                weth.transfer(_to, _amount);
+            }
         } else {
-            weth.transfer(_to, _amount);
+            weth.approve(_to, _amount);
+            (bool success, ) = _to.call(callPayload);
+            if (!success) {
+                weth.transfer(_from, _amount);
+            }
         }
     }
 
