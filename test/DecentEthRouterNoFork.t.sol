@@ -67,30 +67,30 @@ contract DecentEthRouterNoFork is CommonRouterSetup {
         router.removeLiquidityWeth(amount + 10);
     }
 
-    function testUserShouldNotBeAbleToRedeemIfTheyDontHaveDecentEth() public {
-        router.addLiquidityEth{value: 1 ether}();
-        vm.deal(alice, 0.1 ether);
-        vm.prank(alice);
-        vm.expectRevert();
-        router.redeemEth(0.01 ether);
-    }
+    //function testUserShouldNotBeAbleToRedeemIfTheyDontHaveDecentEth() public {
+    //    router.addLiquidityEth{value: 1 ether}();
+    //    vm.deal(alice, 0.1 ether);
+    //    vm.prank(alice);
+    //    vm.expectRevert();
+    //    router.redeemEth(0.01 ether);
+    //}
 
-    function testUserShouldBeAbleToRedeem() public {
-        router.addLiquidityEth{value: 1 ether}();
-        vm.prank(address(router));
-        dcntEth.mint(alice, 0.1 ether);
-        assertEq(alice.balance, 0);
-        vm.startPrank(alice);
-        dcntEth.approve(address(router), 0.1 ether);
-        router.redeemEth(0.04 ether);
-        assertEq(alice.balance, 0.04 ether);
-        assertEq(dcntEth.balanceOf(alice), 0.06 ether);
+    //function testUserShouldBeAbleToRedeem() public {
+    //    router.addLiquidityEth{value: 1 ether}();
+    //    vm.prank(address(router));
+    //    dcntEth.mint(alice, 0.1 ether);
+    //    assertEq(alice.balance, 0);
+    //    vm.startPrank(alice);
+    //    dcntEth.approve(address(router), 0.1 ether);
+    //    router.redeemEth(0.04 ether);
+    //    assertEq(alice.balance, 0.04 ether);
+    //    assertEq(dcntEth.balanceOf(alice), 0.06 ether);
 
-        router.redeemEth(0.06 ether);
-        assertEq(alice.balance, 0.1 ether);
-        assertEq(dcntEth.balanceOf(alice), 0.00 ether);
-        vm.stopPrank();
-    }
+    //    router.redeemEth(0.06 ether);
+    //    assertEq(alice.balance, 0.1 ether);
+    //    assertEq(dcntEth.balanceOf(alice), 0.00 ether);
+    //    vm.stopPrank();
+    //}
 
     function testUserShouldBeGivenDcntEthIfRouterHasNotEnoughBalance() public {
         router.addLiquidityEth{value: 0.1 ether}();
@@ -122,19 +122,19 @@ contract DecentEthRouterNoFork is CommonRouterSetup {
         assertEq(weth.balanceOf(address(router)), 2 ether - 0.69 ether);
     }
 
-    function testUserShouldNotBeAbleToRedeemIfWeDontHaveEnoughReserves()
-        public
-    {
-        router.addLiquidityEth{value: 1 ether}();
-        vm.prank(address(router));
-        dcntEth.mint(alice, 2 ether);
-        assertEq(alice.balance, 0);
-        vm.startPrank(alice);
-        dcntEth.approve(address(router), 2 ether);
-        vm.expectRevert("not enough reserves");
-        router.redeemEth(2 ether);
-        vm.stopPrank();
-    }
+    //function testUserShouldNotBeAbleToRedeemIfWeDontHaveEnoughReserves()
+    //    public
+    //{
+    //    router.addLiquidityEth{value: 1 ether}();
+    //    vm.prank(address(router));
+    //    dcntEth.mint(alice, 2 ether);
+    //    assertEq(alice.balance, 0);
+    //    vm.startPrank(alice);
+    //    dcntEth.approve(address(router), 2 ether);
+    //    vm.expectRevert("not enough reserves");
+    //    router.redeemEth(2 ether);
+    //    vm.stopPrank();
+    //}
 
     function testShouldHandlePermissionedWithdrawals() public {
         vm.deal(alice, 1 ether);

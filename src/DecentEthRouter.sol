@@ -154,12 +154,12 @@ contract DecentEthRouter is IOFTReceiverV2 {
         );
     }
 
-    event ReceivedDecentEth(
-        uint16 _srcChainId,
-        address from,
-        address _to,
-        uint amount
-    );
+    //event ReceivedDecentEth(
+    //    uint16 _srcChainId,
+    //    address from,
+    //    address _to,
+    //    uint amount
+    //);
 
     function onOFTReceived(
         uint16 _srcChainId,
@@ -170,7 +170,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
         bytes memory _payload
     ) external override {
         (address from, address _to) = abi.decode(_payload, (address, address));
-        emit ReceivedDecentEth(_srcChainId, from, _to, _amount);
+        //emit ReceivedDecentEth(_srcChainId, from, _to, _amount);
 
         if (weth.balanceOf(address(this)) < _amount) {
             dcntEth.transfer(_to, _amount);
@@ -185,20 +185,20 @@ contract DecentEthRouter is IOFTReceiverV2 {
         }
     }
 
-    function redeemEth(
-        uint256 amount
-    ) public onlyIfWeHaveEnoughReserves(amount) {
-        dcntEth.transferFrom(msg.sender, address(this), amount);
-        weth.withdraw(amount);
-        payable(msg.sender).transfer(amount);
-    }
+    //function redeemEth(
+    //    uint256 amount
+    //) public onlyIfWeHaveEnoughReserves(amount) {
+    //    dcntEth.transferFrom(msg.sender, address(this), amount);
+    //    weth.withdraw(amount);
+    //    payable(msg.sender).transfer(amount);
+    //}
 
-    function redeemWeth(
-        uint256 amount
-    ) public onlyIfWeHaveEnoughReserves(amount) {
-        dcntEth.transferFrom(msg.sender, address(this), amount);
-        weth.transfer(msg.sender, amount);
-    }
+    //function redeemWeth(
+    //    uint256 amount
+    //) public onlyIfWeHaveEnoughReserves(amount) {
+    //    dcntEth.transferFrom(msg.sender, address(this), amount);
+    //    weth.transfer(msg.sender, amount);
+    //}
 
     mapping(address => uint256) public balanceOf;
 
