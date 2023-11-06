@@ -32,6 +32,7 @@ contract DeployRouter is Script {
             isGasEth
         );
         DcntEth dcntEth = new DcntEth(lzEndpoint);
+        dcntEth.transferOwnership(address(router));
         router.registerDcntEth(address(dcntEth));
         vm.stopBroadcast();
     }

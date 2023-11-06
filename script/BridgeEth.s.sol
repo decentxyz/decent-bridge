@@ -41,10 +41,12 @@ contract BridgeEth is Script, DeploymentHelpers, DeployedSrcDstContext {
         }
         weth.approve(address(srcRouter), amountToBridge);
         (uint nativeFee, uint zroFee) = srcRouter.estimateSendAndCallFee(
+            MT_ETH_TRANSFER,
             dstLzId,
             me, // us maybe inshallah?
             amountToBridge,
-            DST_GAS_FOR_CALL
+            DST_GAS_FOR_CALL,
+            ""
         );
         uint totalFee = nativeFee + zroFee;
         uint value;

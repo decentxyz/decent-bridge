@@ -152,7 +152,12 @@ contract DecentEthRouterEthChainTest is CommonRouterSetup {
         uint256 dstFork,
         uint16 srcLzId
     ) public {
-        bytes memory oftPayload = abi.encode(fromAddress, toAddress);
+        bytes memory oftPayload = abi.encode(
+            MT_ETH_TRANSFER,
+            fromAddress,
+            toAddress,
+            ""
+        );
 
         bytes memory lzPayload = firstDcntEth.encodeSendAndCallPayload(
             address(srcRouter), // first router (has decent eth)

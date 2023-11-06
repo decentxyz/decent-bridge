@@ -21,7 +21,8 @@ contract DecentEthRouterEthChainTest is CommonRouterSetup {
         assertEq(vm.activeFork(), arbiFork);
         weth = new WETH();
         router = new DecentEthRouter(payable(address(weth)), isGasEth);
-        DcntEth dcntEth = new DcntEth(lzEndpointArbitrum);
+        dcntEth = new DcntEth(lzEndpointArbitrum);
+        dcntEth.transferOwnership(address(router));
         router.registerDcntEth(address(dcntEth));
     }
 
@@ -49,10 +50,12 @@ contract DecentEthRouterEthChainTest is CommonRouterSetup {
         address toAddress = msg.sender;
 
         (uint nativeFee, uint zroFee) = router.estimateSendAndCallFee(
+            MT_ETH_TRANSFER,
             dstLzOpId,
             toAddress,
             amount,
-            DST_GAS_FOR_CALL
+            DST_GAS_FOR_CALL,
+            ""
         );
         vm.expectRevert("ERC20: burn amount exceeds balance");
         router.bridgeEth{value: amount + nativeFee + zroFee}(
