@@ -36,7 +36,7 @@ contract DeployedSrcDstContext is DeploymentHelpers {
             payable(
                 getFromLastRun(
                     dstChainId,
-                    '$.transactions[?(@.function == "deployDcntEth(address)")].additionalContracts[0].address'
+                    '$.transactions[?(@.contractName == "DcntEth")].contractAddress'
                 )
             )
         );

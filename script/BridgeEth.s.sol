@@ -56,12 +56,21 @@ contract BridgeEth is Script, DeploymentHelpers, DeployedSrcDstContext {
             value = totalFee;
         }
         console2.log("native fee", nativeFee, "zroFee", zroFee);
-        srcRouter.bridgeEth{value: value}(
-            dstLzId,
-            me, // us
-            amountToBridge,
-            DST_GAS_FOR_CALL
-        );
+        if (srcRouter.gasCurrencyIsEth()) {
+            srcRouter.bridgeEth{value: value}(
+                dstLzId,
+                me, // us
+                amountToBridge,
+                DST_GAS_FOR_CALL
+            );
+        } else {
+            srcRouter.bridgeWeth{value: value}(
+                dstLzId,
+                me, // us
+                amountToBridge,
+                DST_GAS_FOR_CALL
+            );
+        }
 
         vm.stopBroadcast();
     }
