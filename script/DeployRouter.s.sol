@@ -31,7 +31,8 @@ contract DeployRouter is Script {
             payable(address(weth)),
             isGasEth
         );
-        router.deployDcntEth(lzEndpoint);
+        DcntEth dcntEth = new DcntEth(lzEndpoint);
+        router.registerDcntEth(address(dcntEth));
         vm.stopBroadcast();
     }
 }

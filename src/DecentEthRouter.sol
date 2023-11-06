@@ -47,10 +47,6 @@ contract DecentEthRouter is IOFTReceiverV2 {
         balanceOf[msg.sender] -= amount;
     }
 
-    function deployDcntEth(address lzEndpoint) public {
-        dcntEth = new DcntEth(lzEndpoint);
-    }
-
     function registerDcntEth(address _addr) public {
         dcntEth = DcntEth(_addr);
     }

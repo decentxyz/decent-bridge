@@ -22,8 +22,8 @@ contract DecentEthRouterNonEthChainTest is CommonRouterSetup {
     function setUp() public {
         weth = new BridgedWeth();
         router = new DecentEthRouter(payable(address(weth)), isGasEth);
-        router.deployDcntEth(lzEndpointPolygon);
-        dcntEth = router.dcntEth();
+        DcntEth dcntEth = new DcntEth(lzEndpointPolygon);
+        router.registerDcntEth(address(dcntEth));
     }
 
     function testAddLiquidity() public {

@@ -19,8 +19,8 @@ contract DecentEthRouterNoFork is CommonRouterSetup {
     function setUp() public {
         weth = new WETH();
         router = new DecentEthRouter(payable(address(weth)), isGasEth);
-        router.deployDcntEth(lzEndpointArbitrum);
-        dcntEth = router.dcntEth();
+        DcntEth dcntEth = new DcntEth(lzEndpointArbitrum);
+        router.registerDcntEth(address(dcntEth));
     }
 
     function addLiquidity(uint amount) internal {
