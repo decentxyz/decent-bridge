@@ -26,7 +26,7 @@ contract DeployedChainContext is DeploymentHelpers {
             payable(
                 getFromLastRun(
                     chainId,
-                    '$.transactions[?(@.function == "deployDcntEth(address)")].additionalContracts[0].address'
+                    '$.transactions[?(@.contractName == "DcntEth")].contractAddress'
                 )
             )
         );

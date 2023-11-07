@@ -26,8 +26,9 @@ contract DecentEthRouterNonEthChainTest is CommonRouterSetup {
         assertEq(vm.activeFork(), maticFork);
         weth = new BridgedWeth();
         router = new DecentEthRouter(payable(address(weth)), isGasEth);
-        router.deployDcntEth(lzEndpointPolygon);
-        dcntEth = router.dcntEth();
+        dcntEth = new DcntEth(lzEndpointPolygon);
+        router.registerDcntEth(address(dcntEth));
+        dcntEth.transferOwnership(address(router));
     }
 
     function addLiquidity(uint amount) internal {
@@ -45,16 +46,18 @@ contract DecentEthRouterNonEthChainTest is CommonRouterSetup {
         address toAddress = msg.sender;
 
         (uint nativeFee, uint zroFee) = router.estimateSendAndCallFee(
+            MT_ETH_TRANSFER,
             dstLzOpId,
             toAddress,
             amount,
-            DST_GAS_FOR_CALL
+            DST_GAS_FOR_CALL,
+            ""
         );
 
         weth.mint(address(this), amount);
         weth.approve(address(router), amount);
 
-        router.bridgeEth{value: nativeFee + zroFee}(
+        router.bridgeWeth{value: nativeFee + zroFee}(
             dstLzOpId,
             toAddress,
             amount,

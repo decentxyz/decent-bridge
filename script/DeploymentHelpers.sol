@@ -3,6 +3,9 @@ pragma solidity ^0.8.13;
 import {CommonBase} from "forge-std/Base.sol";
 
 contract DeploymentHelpers is CommonBase {
+    uint8 public constant MT_ETH_TRANSFER = 0;
+    uint8 public constant MT_ETH_TRANSFER_WITH_PAYLOAD = 1;
+
     function getDeployment(
         string memory filePath,
         string memory keypath

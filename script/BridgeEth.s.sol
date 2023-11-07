@@ -33,7 +33,7 @@ contract BridgeEth is Script, DeploymentHelpers, DeployedSrcDstContext {
         address me = msg.sender;
         uint amountToBridge = vm.envUint("AMOUNT");
 
-        bool srcChainGasIsEth = srcRouter.gasCurrencyisEth();
+        bool srcChainGasIsEth = srcRouter.gasCurrencyIsEth();
         BridgedWeth weth = BridgedWeth(address(srcRouter.weth()));
         if (!srcChainGasIsEth && !isMainnet) {
             console2.log("approving");
@@ -41,10 +41,12 @@ contract BridgeEth is Script, DeploymentHelpers, DeployedSrcDstContext {
         }
         weth.approve(address(srcRouter), amountToBridge);
         (uint nativeFee, uint zroFee) = srcRouter.estimateSendAndCallFee(
+            MT_ETH_TRANSFER,
             dstLzId,
             me, // us maybe inshallah?
             amountToBridge,
-            DST_GAS_FOR_CALL
+            DST_GAS_FOR_CALL,
+            ""
         );
         uint totalFee = nativeFee + zroFee;
         uint value;
@@ -54,12 +56,21 @@ contract BridgeEth is Script, DeploymentHelpers, DeployedSrcDstContext {
             value = totalFee;
         }
         console2.log("native fee", nativeFee, "zroFee", zroFee);
-        srcRouter.bridgeEth{value: value}(
-            dstLzId,
-            me, // us
-            amountToBridge,
-            DST_GAS_FOR_CALL
-        );
+        if (srcRouter.gasCurrencyIsEth()) {
+            srcRouter.bridgeEth{value: value}(
+                dstLzId,
+                me, // us
+                amountToBridge,
+                DST_GAS_FOR_CALL
+            );
+        } else {
+            srcRouter.bridgeWeth{value: value}(
+                dstLzId,
+                me, // us
+                amountToBridge,
+                DST_GAS_FOR_CALL
+            );
+        }
 
         vm.stopBroadcast();
     }

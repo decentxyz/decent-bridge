@@ -28,7 +28,7 @@ contract AddLiquidity is Script, DeploymentHelpers, DeployedChainContext {
         vm.createSelectFork(chainAlias);
         vm.startBroadcast();
 
-        bool isGasEth = router.gasCurrencyisEth();
+        bool isGasEth = router.gasCurrencyIsEth();
 
         if (!isGasEth && !isMainnet) {
             BridgedWeth bridgedWeth = BridgedWeth(address(router.weth()));
