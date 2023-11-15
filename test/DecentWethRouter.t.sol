@@ -51,6 +51,7 @@ contract DecentEthRouterNonEthChainTest is CommonRouterSetup {
             toAddress,
             amount,
             DST_GAS_FOR_CALL,
+            false,
             ""
         );
 

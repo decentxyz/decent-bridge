@@ -66,7 +66,8 @@ contract DecentEthRouterNonEthChainTest is CommonRouterSetup {
         receiveSomeEth(
             bob, // from
             alice, // to,
-            0.69 ether // amt received
+            0.69 ether, // amt received,
+            false // deliver weth
         );
 
         assertEq(dcntEth.balanceOf(alice), 0);

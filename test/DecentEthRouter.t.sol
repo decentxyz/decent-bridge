@@ -55,6 +55,7 @@ contract DecentEthRouterEthChainTest is CommonRouterSetup {
             toAddress,
             amount,
             DST_GAS_FOR_CALL,
+            false,
             ""
         );
         vm.expectRevert("ERC20: burn amount exceeds balance");

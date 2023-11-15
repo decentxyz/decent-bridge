@@ -150,12 +150,14 @@ contract DecentEthRouterEthChainTest is CommonRouterSetup {
         Endpoint dstLzEndpoint,
         uint256 amount,
         uint256 dstFork,
-        uint16 srcLzId
+        uint16 srcLzId,
+        bool receiveEth
     ) public {
         bytes memory oftPayload = abi.encode(
             MT_ETH_TRANSFER,
             fromAddress,
             toAddress,
+            receiveEth,
             ""
         );
 
@@ -215,7 +217,8 @@ contract DecentEthRouterEthChainTest is CommonRouterSetup {
             firstLzEndpoint,
             amount,
             secondFork,
-            firstLzId
+            firstLzId,
+            true
         );
 
         assertEq(

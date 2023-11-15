@@ -46,25 +46,21 @@ contract BridgeEth is Script, DeploymentHelpers, DeployedSrcDstContext {
             me, // us maybe inshallah?
             amountToBridge,
             DST_GAS_FOR_CALL,
+            false,
             ""
         );
         uint totalFee = nativeFee + zroFee;
         uint value;
-        if (srcChainGasIsEth) {
-            value = amountToBridge + totalFee;
-        } else {
-            value = totalFee;
-        }
         console2.log("native fee", nativeFee, "zroFee", zroFee);
         if (srcRouter.gasCurrencyIsEth()) {
-            srcRouter.bridgeEth{value: value}(
+            srcRouter.bridgeEth{value: amountToBridge + totalFee}(
                 dstLzId,
                 me, // us
                 amountToBridge,
                 DST_GAS_FOR_CALL
             );
         } else {
-            srcRouter.bridgeWeth{value: value}(
+            srcRouter.bridgeWeth{value: totalFee}(
                 dstLzId,
                 me, // us
                 amountToBridge,

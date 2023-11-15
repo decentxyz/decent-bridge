@@ -5,6 +5,7 @@ import {WETH} from "solmate/tokens/WETH.sol";
 import {DcntEth} from "./DcntEth.sol";
 import {ICommonOFT} from "solidity-examples/token/oft/v2/interfaces/ICommonOFT.sol";
 import {IOFTReceiverV2} from "solidity-examples/token/oft/v2/interfaces/IOFTReceiverV2.sol";
+import {console2} from "forge-std/console2.sol";
 
 contract DecentEthRouter is IOFTReceiverV2 {
     WETH public weth;
@@ -71,6 +72,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
         address _toAddress,
         uint16 _dstChainId,
         uint64 _dstGasForCall,
+        bool deliverEth,
         bytes memory additionalPayload
     )
         internal
@@ -87,12 +89,13 @@ contract DecentEthRouter is IOFTReceiverV2 {
         destBridge = bytes32(abi.encode(destinationBridges[_dstChainId]));
 
         if (msgType == MT_ETH_TRANSFER) {
-            payload = abi.encode(msgType, msg.sender, _toAddress);
+            payload = abi.encode(msgType, msg.sender, _toAddress, deliverEth);
         } else {
             payload = abi.encode(
                 msgType,
                 msg.sender,
                 _toAddress,
+                deliverEth,
                 additionalPayload
             );
         }
@@ -104,6 +107,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
         address _toAddress,
         uint _amount,
         uint64 _dstGasForCall,
+        bool deliverEth,
         bytes memory payload
     ) public view returns (uint nativeFee, uint zroFee) {
         (
@@ -115,6 +119,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
                 _toAddress,
                 _dstChainId,
                 _dstGasForCall,
+                deliverEth,
                 payload
             );
 
@@ -149,6 +154,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
                 _toAddress,
                 _dstChainId,
                 _dstGasForCall,
+                isEth,
                 additionalPayload
             );
 
@@ -194,6 +200,25 @@ contract DecentEthRouter is IOFTReceiverV2 {
                 _dstGasForCall,
                 additionalPayload,
                 false
+            );
+    }
+
+    function bridgeEthWithPayload(
+        uint16 _dstChainId,
+        address _toAddress,
+        uint _amount,
+        uint64 _dstGasForCall,
+        bytes memory additionalPayload
+    ) public payable {
+        return
+            _bridgeWithPayload(
+                MT_ETH_TRANSFER_WITH_PAYLOAD,
+                _dstChainId,
+                _toAddress,
+                _amount,
+                _dstGasForCall,
+                additionalPayload,
+                true
             );
     }
 
@@ -248,12 +273,17 @@ contract DecentEthRouter is IOFTReceiverV2 {
         uint _amount,
         bytes memory _payload
     ) external override {
-        (
-            uint8 msgType,
-            address _from,
-            address _to,
-            bytes memory callPayload
-        ) = abi.decode(_payload, (uint8, address, address, bytes));
+        (uint8 msgType, address _from, address _to, bool deliverEth) = abi
+            .decode(_payload, (uint8, address, address, bool));
+
+        bytes memory callPayload = "";
+
+        if (msgType == MT_ETH_TRANSFER_WITH_PAYLOAD) {
+            (, , , , callPayload) = abi.decode(
+                _payload,
+                (uint8, address, address, bool, bytes)
+            );
+        }
 
         emit ReceivedDecentEth(
             msgType,
@@ -270,17 +300,25 @@ contract DecentEthRouter is IOFTReceiverV2 {
         }
 
         if (msgType == MT_ETH_TRANSFER) {
-            if (gasCurrencyIsEth) {
+            if (!gasCurrencyIsEth || !deliverEth) {
+                weth.transfer(_to, _amount);
+            } else {
                 weth.withdraw(_amount);
                 payable(_to).transfer(_amount);
-            } else {
-                weth.transfer(_to, _amount);
             }
         } else {
-            weth.approve(_to, _amount);
-            (bool success, ) = _to.call(callPayload);
-            if (!success) {
-                weth.transfer(_from, _amount);
+            if (!gasCurrencyIsEth || !deliverEth) {
+                weth.approve(_to, _amount);
+                (bool success, ) = _to.call(callPayload);
+                if (!success) {
+                    weth.transfer(_from, _amount);
+                }
+            } else {
+                weth.withdraw(_amount);
+                (bool success, ) = _to.call{value: _amount}(callPayload);
+                if (!success) {
+                    payable(_from).transfer(_amount);
+                }
             }
         }
     }
@@ -308,6 +346,8 @@ contract DecentEthRouter is IOFTReceiverV2 {
         onlyEthChain
         userDepositing(msg.value)
     {
+        console2.log("senders balance", msg.sender.balance);
+        console2.log("msg value", msg.value);
         weth.deposit{value: msg.value}();
         dcntEth.mint(address(this), msg.value);
     }

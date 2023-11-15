@@ -99,7 +99,8 @@ contract DecentEthRouterNoFork is CommonRouterSetup {
         receiveSomeEth(
             bob, // from
             alice, // to,
-            1 ether // amt received
+            1 ether, // amt received,
+            true
         );
 
         assertEq(dcntEth.balanceOf(alice), 1 ether);
@@ -112,7 +113,8 @@ contract DecentEthRouterNoFork is CommonRouterSetup {
         receiveSomeEth(
             bob, // from
             alice, // to,
-            0.69 ether // amt received
+            0.69 ether, // amt received
+            true // deliver eth
         );
 
         assertEq(dcntEth.balanceOf(alice), 0);

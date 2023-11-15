@@ -63,6 +63,7 @@ contract CommonRouterSetup is Test {
             toAddress,
             amount,
             DST_GAS_FOR_CALL,
+            false,
             ""
         );
 
@@ -97,13 +98,20 @@ contract CommonRouterSetup is Test {
     function receiveSomeEth(
         address _from,
         address _to,
-        uint256 amount
+        uint256 amount,
+        bool deliverEth
     ) internal {
         uint16 srcChainId = 69;
         uint64 _nonce = 0;
         bytes memory _srcAddress = abi.encode(address(0xdeadbeef));
         bytes32 from = bytes32(abi.encode(_from)); // bytes32(bytes(bob));
-        bytes memory _payload = abi.encode(MT_ETH_TRANSFER, _from, _to, "");
+        bytes memory _payload = abi.encode(
+            MT_ETH_TRANSFER,
+            _from,
+            _to,
+            deliverEth,
+            ""
+        );
 
         vm.startPrank(address(router));
         dcntEth.mint(address(router), amount);
@@ -117,6 +125,7 @@ contract CommonRouterSetup is Test {
             amount,
             ""
         );
+
         router.onOFTReceived(
             srcChainId,
             _srcAddress,
