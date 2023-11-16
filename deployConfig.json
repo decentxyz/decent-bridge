@@ -30,5 +30,13 @@
     "chainId": 10,
     "isMainnet": true,
     "lzId": 111
+  },
+  "optimism-testnet": {
+    "isGasEth": true,
+    "weth": "0x4200000000000000000000000000000000000006",
+    "lzEndpoint": "0xae92d5aD7583AD66E49A0c67BAd18F6ba52dDDc1",
+    "chainId": 420,
+    "isMainnet": true,
+    "lzId": 10132
   }
 }

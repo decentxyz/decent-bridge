@@ -6,20 +6,37 @@ solc = "0.8.20"
 fs_permissions = [{ access = "read", path = "./constants"}, { access = "read", path = "./broadcast"}]
 
 [rpc_endpoints]
-arbitrum = "${ARBITRUM_RPC}"
-optimism = "${OPTIMISM_RPC}"
-polygon = "${POLYGON_RPC}"
-ftm-testnet = "${FTM_TESTNET_RPC}"
-fuji = "${FUJI_RPC}"
 sepolia = "${SEPOLIA_RPC}"
+arbitrum = "${ARBITRUM_RPC}"
+arbitrum-testnet = "${ARBITRUM_TESTNET_RPC}"
+optimism = "${OPTIMISM_RPC}"
+optimism-testnet = "${OPTIMISM_TESTNET_RPC}"
+polygon = "${POLYGON_RPC}"
+polygon-testnet = "${POLYGON_TESTNET_RPC}"
+ftm = "${FTM_RPC}"
+ftm-testnet = "${FTM_TESTNET_RPC}"
+avax = "${AVAX_RPC}"
+avax-testnet = "${AVAX_TESTNET_RPC}"
+base = "${BASE_RPC}"
+base-testnet = "${BASE_TESTNET_RPC}"
 zora = "${ZORA_RPC}"
+zora-testnet = "${ZORA_TESTNET_RPC}"
 
 [etherscan]
-arbitrum = { key = "${ARBISCAN_API_KEY}", url = "https://api.arbiscan.io/api" }
-optimism = { key = "${OPTIMISM_ETHERSCAN_API_KEY}", url = "https://api-optimistic.etherscan.io/api" }
-polygon = { key = "${POLYGONSCAN_API_KEY}", url = "https://api-testnet.polygonscan.com/api" }
-ftm-testnet = { key = "${FTMSCAN_API_KEY}", url = "https://api-testnet.ftmscan.com/api" }
-fuji = { key = "${SNOWTRACE_API_KEY}", url = "https://api-testnet.snowtrace.io/api" }
 sepolia = { key = "${ETHERSCAN_ETHERUM_API_KEY}", url = "https://api-sepolia.etherscan.io/api" }
+arbitrum = { key = "${ARBISCAN_API_KEY}", url = "https://api.arbiscan.io/api" }
+arbitrum-testnet = { key = "${ARBISCAN_API_KEY}", url = "https://api-goerli.arbiscan.io/api" }
+optimism = { key = "${OPTIMISM_ETHERSCAN_API_KEY}", url = "https://api-optimistic.etherscan.io/api" }
+optimism-testnet = { key = "${OPTIMISM_ETHERSCAN_API_KEY}", url = "https://api-goerli-optimism.etherscan.io/api" }
+polygon = { key = "${POLYGONSCAN_API_KEY}", url = "https://api.polygonscan.com/api" }
+polygon-testnet = { key = "${POLYGONSCAN_API_KEY}", url = "https://api-testnet.polygonscan.com/api" }
+ftm = { key = "${FTMSCAN_API_KEY}", url = "https://api-testnet.ftmscan.com/api" }
+ftm-testnet = { key = "${FTMSCAN_API_KEY}", url = "https://api-testnet.ftmscan.com/api" }
+avax = { key = "${SNOWTRACE_API_KEY}", url = "https://api.snowtrace.io/api" }
+avax-testnet = { key = "${SNOWTRACE_API_KEY}", url = "https://api-testnet.snowtrace.io/api" }
+base = { key = "${BASESCAN_API_KEY}", url = "https://api.basescan.org/api" }
+base-testnet = { key = "${BASESCAN_API_KEY}", url = "https://api-goerli.basescan.org/api" }
+zora = { key = "${BLOCKSCOUT_API_KEY}", url = "https://explorer.zora.energy/api" }
+zora-testnet = { key = "${BLOCKSCOUT_API_KEY}", url = "https://testnet.explorer.zora.energy/api" }
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
