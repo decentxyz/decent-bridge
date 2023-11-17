@@ -67,7 +67,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
         dcntEth.setMinDstGas(_dstChainId, PT_SEND_AND_CALL, _minDstGas);
     }
 
-    function getCallParams(
+    function _getCallParams(
         uint8 msgType,
         address _toAddress,
         uint16 _dstChainId,
@@ -75,7 +75,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
         bool deliverEth,
         bytes memory additionalPayload
     )
-        internal
+        private
         view
         returns (
             bytes32 destBridge,
@@ -87,7 +87,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
         uint256 gasAmount = GAS_FOR_RELAY + _dstGasForCall;
         adapterParams = abi.encodePacked(PT_SEND_AND_CALL, gasAmount);
         destBridge = bytes32(abi.encode(destinationBridges[_dstChainId]));
-
+        console2.log("msg sender at Decent ETH Router is", msg.sender);
         if (msgType == MT_ETH_TRANSFER) {
             payload = abi.encode(msgType, msg.sender, _toAddress, deliverEth);
         } else {
@@ -114,7 +114,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
             bytes32 destinationBridge,
             bytes memory adapterParams,
             bytes memory _payload
-        ) = getCallParams(
+        ) = _getCallParams(
                 msgType,
                 _toAddress,
                 _dstChainId,
@@ -149,7 +149,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
             bytes32 destinationBridge,
             bytes memory adapterParams,
             bytes memory payload
-        ) = getCallParams(
+        ) = _getCallParams(
                 msgType,
                 _toAddress,
                 _dstChainId,
