@@ -1,11 +1,13 @@
 include .env
 
-COMMON_PARAMS := --slow --broadcast --verify -vvvv
+COMMON_PARAMS := --broadcast -vvvvv
 
 ifeq ($(MAINNET),true)
     COMMON_PARAMS += --private-key=$(MAINNET_ACCOUNT)
-else
+else ifeq ($(TESTNET),true)
     COMMON_PARAMS += --private-key=$(TESTNET_ACCOUNT)
+else
+    COMMON_PARAMS += --unlocked --sender=$(TESTNET_ACCOUNT_ADDRESS)
 endif
 
 DECIMALS := 1000000000000000000 # for convenience
