@@ -18,6 +18,8 @@ contract CommonRouterSetup is Test {
     event SetMinDstGas(uint16 _dstChainId, uint16 _type, uint _minDstGas);
     uint16 public constant PT_SEND_AND_CALL = 1;
 
+    uint64 DST_GAS_FOR_CALL = 120000;
+
     function setUpDstRouter()
         internal
         returns (uint16, DecentEthRouter, DcntEth)
@@ -38,8 +40,6 @@ contract CommonRouterSetup is Test {
         );
         return (dstLzOpId, dstRouter, dstDcntEth);
     }
-
-    uint64 DST_GAS_FOR_CALL = 120000;
 
     event SendToChain(
         uint16 indexed _dstChainId,
@@ -70,11 +70,12 @@ contract CommonRouterSetup is Test {
         uint fee = nativeFee + zroFee;
 
         vm.prank(fromAddress);
-        _router.bridgeEth{value: amount + fee}(
+        _router.bridge{value: amount + fee}(
             dstLzOpId,
             toAddress,
             amount,
-            DST_GAS_FOR_CALL
+            DST_GAS_FOR_CALL,
+            true
         );
 
         return (nativeFee, zroFee);

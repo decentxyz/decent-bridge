@@ -5,7 +5,6 @@ import {WETH} from "solmate/tokens/WETH.sol";
 import {DcntEth} from "./DcntEth.sol";
 import {ICommonOFT} from "solidity-examples/token/oft/v2/interfaces/ICommonOFT.sol";
 import {IOFTReceiverV2} from "solidity-examples/token/oft/v2/interfaces/IOFTReceiverV2.sol";
-import {console2} from "forge-std/console2.sol";
 
 contract DecentEthRouter is IOFTReceiverV2 {
     WETH public weth;
@@ -87,7 +86,6 @@ contract DecentEthRouter is IOFTReceiverV2 {
         uint256 gasAmount = GAS_FOR_RELAY + _dstGasForCall;
         adapterParams = abi.encodePacked(PT_SEND_AND_CALL, gasAmount);
         destBridge = bytes32(abi.encode(destinationBridges[_dstChainId]));
-        console2.log("msg sender at Decent ETH Router is", msg.sender);
         if (msgType == MT_ETH_TRANSFER) {
             payload = abi.encode(msgType, msg.sender, _toAddress, deliverEth);
         } else {
@@ -143,7 +141,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
         uint _amount,
         uint64 _dstGasForCall,
         bytes memory additionalPayload,
-        bool isEth
+        bool deliverEth
     ) internal {
         (
             bytes32 destinationBridge,
@@ -154,7 +152,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
                 _toAddress,
                 _dstChainId,
                 _dstGasForCall,
-                isEth,
+                deliverEth,
                 additionalPayload
             );
 
@@ -165,7 +163,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
         });
 
         uint gasValue;
-        if (isEth) {
+        if (gasCurrencyIsEth) {
             weth.deposit{value: _amount}();
             gasValue = msg.value - _amount;
         } else {
@@ -188,6 +186,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
         uint16 _dstChainId,
         address _toAddress,
         uint _amount,
+        bool deliverEth,
         uint64 _dstGasForCall,
         bytes memory additionalPayload
     ) public payable {
@@ -199,51 +198,16 @@ contract DecentEthRouter is IOFTReceiverV2 {
                 _amount,
                 _dstGasForCall,
                 additionalPayload,
-                false
+                deliverEth
             );
     }
 
-    function bridgeEthWithPayload(
+    function bridge(
         uint16 _dstChainId,
         address _toAddress,
         uint _amount,
         uint64 _dstGasForCall,
-        bytes memory additionalPayload
-    ) public payable {
-        return
-            _bridgeWithPayload(
-                MT_ETH_TRANSFER_WITH_PAYLOAD,
-                _dstChainId,
-                _toAddress,
-                _amount,
-                _dstGasForCall,
-                additionalPayload,
-                true
-            );
-    }
-
-    function bridgeEth(
-        uint16 _dstChainId,
-        address _toAddress,
-        uint _amount,
-        uint64 _dstGasForCall
-    ) public payable onlyEthChain {
-        _bridgeWithPayload(
-            MT_ETH_TRANSFER,
-            _dstChainId,
-            _toAddress,
-            _amount,
-            _dstGasForCall,
-            bytes(""),
-            true
-        );
-    }
-
-    function bridgeWeth(
-        uint16 _dstChainId,
-        address _toAddress,
-        uint _amount,
-        uint64 _dstGasForCall
+        bool deliverEth // if false, delivers WETH
     ) public payable {
         _bridgeWithPayload(
             MT_ETH_TRANSFER,
@@ -252,7 +216,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
             _amount,
             _dstGasForCall,
             bytes(""),
-            false
+            deliverEth
         );
     }
 
@@ -308,11 +272,21 @@ contract DecentEthRouter is IOFTReceiverV2 {
             }
         } else {
             if (!gasCurrencyIsEth || !deliverEth) {
+                uint256 wethBalanceBefore = weth.balanceOf(address(this));
                 weth.approve(_to, _amount);
+
                 (bool success, ) = _to.call(callPayload);
+
                 if (!success) {
                     weth.transfer(_from, _amount);
+                    return;
                 }
+
+                uint256 remainingBridgedWethAfterCall = _amount -
+                    (wethBalanceBefore - weth.balanceOf(address(this)));
+
+                // refund the sender with excess weth
+                weth.transfer(_from, remainingBridgedWethAfterCall);
             } else {
                 weth.withdraw(_amount);
                 (bool success, ) = _to.call{value: _amount}(callPayload);
@@ -346,8 +320,6 @@ contract DecentEthRouter is IOFTReceiverV2 {
         onlyEthChain
         userDepositing(msg.value)
     {
-        console2.log("senders balance", msg.sender.balance);
-        console2.log("msg value", msg.value);
         weth.deposit{value: msg.value}();
         dcntEth.mint(address(this), msg.value);
     }

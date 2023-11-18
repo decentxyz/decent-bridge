@@ -6,15 +6,24 @@ solc = "0.8.20"
 fs_permissions = [{ access = "read", path = "./constants"}, { access = "read", path = "./broadcast"}]
 
 [rpc_endpoints]
+ethereum = "${ETHEREUM_RPC}"
 arbitrum = "${ARBITRUM_RPC}"
 optimism = "${OPTIMISM_RPC}"
 polygon = "${POLYGON_RPC}"
+avalanche = "${AVALANCHE_RPC}"
 ftm-testnet = "${FTM_TESTNET_RPC}"
 fuji = "${FUJI_RPC}"
 sepolia = "${SEPOLIA_RPC}"
 zora = "${ZORA_RPC}"
+fork_ethereum = "http://localhost:${FORK_ETHEREUM_PORT}"
+fork_arbitrum = "http://localhost:${FORK_ARBITRUM_PORT}"
+fork_optimism = "http://localhost:${FORK_OPTIMISM_PORT}"
+fork_zora= "http://localhost:${FORK_ZORA_PORT}"
+fork_avalanche= "http://localhost:${FORK_AVALANCHE_PORT}"
+fork_polygon= "http://localhost:${FORK_POLYGON_PORT}"
 
 [etherscan]
+ethereum = { key = "${ETHERSCAN_ETHERUM_API_KEY}", url = "https://api.etherscan.io/api" }
 arbitrum = { key = "${ARBISCAN_API_KEY}", url = "https://api.arbiscan.io/api" }
 optimism = { key = "${OPTIMISM_ETHERSCAN_API_KEY}", url = "https://api-optimistic.etherscan.io/api" }
 polygon = { key = "${POLYGONSCAN_API_KEY}", url = "https://api-testnet.polygonscan.com/api" }

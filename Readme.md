@@ -52,7 +52,7 @@ does.
 ### Deploying the Router
 
 First we have to deploy the router contracts. The script for this deployment
-is in [DeployRouter.s.sol](./script/DeployRouter.s.sol).
+is in [DeployRouter.s.sol](./script/Deploy.s.sol).
 
 ### Wiring up Contracts
 
@@ -63,4 +63,4 @@ does exactly just that.
 
 ### Bridging Tokens
 
-To bridge tokens, use the [BridgeEth.s.sol](./script/BridgeEth.s.sol) contract.
+To bridge tokens, use the [BridgeEth.s.sol](./script/Bridge.s.sol) contract.

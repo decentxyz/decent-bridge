@@ -58,11 +58,12 @@ contract DecentEthRouterNonEthChainTest is CommonRouterSetup {
         weth.mint(address(this), amount);
         weth.approve(address(router), amount);
 
-        router.bridgeWeth{value: nativeFee + zroFee}(
+        router.bridge{value: nativeFee + zroFee}(
             dstLzOpId,
             toAddress,
             amount,
-            DST_GAS_FOR_CALL
+            DST_GAS_FOR_CALL,
+            false
         );
 
         assertEq(weth.balanceOf(address(router)), 30); // 20 + 10 bridged
