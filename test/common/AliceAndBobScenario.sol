@@ -24,6 +24,27 @@ contract AliceAndBobScenario is SrcDstChainScenario, RouterActions {
             );
     }
 
+    function sendAliceToBob(
+        uint amount,
+        bool deliverEth
+    ) public returns (uint fees) {
+        (, , fees) = sendAliceToTarget(
+            amount,
+            deliverEth,
+            bob,
+            BRIDGE_ONLY_GAS,
+            ""
+        );
+    }
+
+    function sendAliceToBobDeliverEth(uint amount) public returns (uint fees) {
+        return sendAliceToBob(amount, true);
+    }
+
+    function sendAliceToBobDeliverWeth(uint amount) public returns (uint fees) {
+        return sendAliceToBob(amount, false);
+    }
+
     function sendAliceToBobAndReceiveDeliverEth(
         uint amount
     ) public returns (uint fees) {

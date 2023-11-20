@@ -5,10 +5,14 @@ import {WETH} from "solmate/tokens/WETH.sol";
 import {DcntEth} from "./DcntEth.sol";
 import {ICommonOFT} from "solidity-examples/token/oft/v2/interfaces/ICommonOFT.sol";
 import {IOFTReceiverV2} from "solidity-examples/token/oft/v2/interfaces/IOFTReceiverV2.sol";
+import {Owned} from "solmate/auth/Owned.sol";
+import {Executor} from "./Executor.sol";
 
-contract DecentEthRouter is IOFTReceiverV2 {
+contract DecentEthRouter is IOFTReceiverV2, Owned {
     WETH public weth;
     DcntEth public dcntEth;
+    Executor public executor;
+    address lzAuthorized;
 
     uint8 public constant MT_ETH_TRANSFER = 0;
     uint8 public constant MT_ETH_TRANSFER_WITH_PAYLOAD = 1;
@@ -20,13 +24,26 @@ contract DecentEthRouter is IOFTReceiverV2 {
     mapping(uint16 => address) public destinationBridges;
     mapping(uint16 => address) public destinationDcntEth;
 
-    constructor(address payable _wethAddress, bool gasIsEth) {
+    constructor(
+        address payable _wethAddress,
+        bool gasIsEth,
+        address _executor
+    ) Owned(msg.sender) {
         weth = WETH(_wethAddress);
         gasCurrencyIsEth = gasIsEth;
+        executor = Executor(payable(_executor));
     }
 
     modifier onlyEthChain() {
         require(gasCurrencyIsEth, "Gas currency is not ETH");
+        _;
+    }
+
+    modifier onlyLzApp() {
+        require(
+            address(dcntEth) == msg.sender,
+            "DecentEthRouter: only Lz App can call"
+        );
         _;
     }
 
@@ -47,7 +64,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
         balanceOf[msg.sender] -= amount;
     }
 
-    function registerDcntEth(address _addr) public {
+    function registerDcntEth(address _addr) public onlyOwner {
         dcntEth = DcntEth(_addr);
     }
 
@@ -56,7 +73,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
         address _routerAddress,
         address dstDcntEth,
         uint _minDstGas
-    ) public {
+    ) public onlyOwner {
         destinationBridges[_dstChainId] = _routerAddress;
         destinationDcntEth[_dstChainId] = dstDcntEth;
         dcntEth.setTrustedRemote(
@@ -236,7 +253,7 @@ contract DecentEthRouter is IOFTReceiverV2 {
         bytes32,
         uint _amount,
         bytes memory _payload
-    ) external override {
+    ) external override onlyLzApp {
         (uint8 msgType, address _from, address _to, bool deliverEth) = abi
             .decode(_payload, (uint8, address, address, bool));
 
@@ -271,29 +288,31 @@ contract DecentEthRouter is IOFTReceiverV2 {
                 payable(_to).transfer(_amount);
             }
         } else {
-            if (!gasCurrencyIsEth || !deliverEth) {
-                uint256 wethBalanceBefore = weth.balanceOf(address(this));
-                weth.approve(_to, _amount);
+            weth.approve(address(executor), _amount);
+            executor.execute(_from, _to, deliverEth, _amount, callPayload);
+            //if (!gasCurrencyIsEth || !deliverEth) {
+            //    uint256 wethBalanceBefore = weth.balanceOf(address(this));
+            //    weth.approve(_to, _amount);
 
-                (bool success, ) = _to.call(callPayload);
+            //    (bool success, ) = _to.call(callPayload);
 
-                if (!success) {
-                    weth.transfer(_from, _amount);
-                    return;
-                }
+            //    if (!success) {
+            //        weth.transfer(_from, _amount);
+            //        return;
+            //    }
 
-                uint256 remainingBridgedWethAfterCall = _amount -
-                    (wethBalanceBefore - weth.balanceOf(address(this)));
+            //    uint256 remainingBridgedWethAfterCall = _amount -
+            //        (wethBalanceBefore - weth.balanceOf(address(this)));
 
-                // refund the sender with excess weth
-                weth.transfer(_from, remainingBridgedWethAfterCall);
-            } else {
-                weth.withdraw(_amount);
-                (bool success, ) = _to.call{value: _amount}(callPayload);
-                if (!success) {
-                    payable(_from).transfer(_amount);
-                }
-            }
+            //    // refund the sender with excess WETH
+            //    weth.transfer(_from, remainingBridgedWethAfterCall);
+            //} else {
+            //    weth.withdraw(_amount);
+            //    (bool success, ) = _to.call{value: _amount}(callPayload);
+            //    if (!success) {
+            //        payable(_from).transfer(_amount);
+            //    }
+            //}
         }
     }
 

@@ -5,7 +5,13 @@ import {console2} from "forge-std/console2.sol";
 import {CommonBase} from "forge-std/Base.sol";
 
 contract BaseChainSetup is CommonBase {
-    bool internal isTestRuntime = true;
+    string private runtime;
+
+    string constant ENV_FORGE_TEST = "forge-test";
+    string constant ENV_FORK = "fork";
+    string constant ENV_TESTNET = "testnet";
+    string constant ENV_MAINNET = "mainnet";
+
     bool broadcasting = false;
 
     mapping(string => uint256) forkLookup;
@@ -13,19 +19,43 @@ contract BaseChainSetup is CommonBase {
     mapping(string => address) wethLookup;
     mapping(string => uint256) chainIdLookup;
 
-    function setRuntime(bool _isTestRuntime) internal {
-        isTestRuntime = _isTestRuntime;
+    function isMainnet() public returns (bool) {
+        return vm.envOr("MAINNET", false) && strCompare(runtime, ENV_MAINNET);
+    }
+
+    function isTestnet() public returns (bool) {
+        return vm.envOr("TESTNET", false) && strCompare(runtime, ENV_TESTNET);
+    }
+
+    function strCompare(
+        string memory s1,
+        string memory s2
+    ) public pure returns (bool) {
+        return
+            keccak256(abi.encodePacked(s1)) == keccak256(abi.encodePacked(s2));
+    }
+
+    function isForgeTest() public view returns (bool) {
+        return strCompare(runtime, ENV_FORGE_TEST);
+    }
+
+    function isForkRuntime() public view returns (bool) {
+        return strCompare(runtime, ENV_FORK);
+    }
+
+    function setRuntime(string memory _runtime) internal {
+        runtime = _runtime;
     }
 
     function _forkAlias(
         string memory _chain
     ) internal view returns (string memory) {
-        return isTestRuntime ? _chain : string.concat("fork_", _chain);
+        return isForkRuntime() ? string.concat("fork_", _chain) : _chain;
     }
 
     function startImpersonating(address _as) internal {
         console2.log("impersonating as", _as);
-        if (isTestRuntime) {
+        if (isForgeTest()) {
             vm.startPrank(_as);
         } else {
             vm.stopBroadcast();
@@ -39,14 +69,16 @@ contract BaseChainSetup is CommonBase {
         uint256 chainId,
         address weth
     ) public {
-        forkLookup[chain] = vm.createFork(_forkAlias(chain));
+        try vm.createFork(_forkAlias(chain)) returns (uint256 forkId) {
+            forkLookup[chain] = forkId;
+        } catch {}
         gasEthLookup[chain] = isGasEth;
         wethLookup[chain] = weth;
         chainIdLookup[chain] = chainId;
     }
 
     function stopImpersonating() internal {
-        if (isTestRuntime) {
+        if (isForgeTest()) {
             vm.stopPrank();
         } else {
             vm.stopBroadcast();
@@ -59,14 +91,14 @@ contract BaseChainSetup is CommonBase {
             revert("no chain specified");
         }
 
-        if (!isTestRuntime && broadcasting) {
+        if (!isForgeTest() && broadcasting) {
             vm.stopBroadcast();
             broadcasting = false;
         }
 
         vm.selectFork(forkLookup[chain]);
 
-        if (!isTestRuntime) {
+        if (!isForgeTest()) {
             vm.startBroadcast();
             broadcasting = true;
         }
@@ -76,12 +108,13 @@ contract BaseChainSetup is CommonBase {
         string memory chain,
         address user,
         uint256 amount
-    ) internal {
+    ) internal returns (bool success) {
+        success = true;
         switchTo(chain);
-        if (isTestRuntime) {
+        if (isForgeTest()) {
             vm.deal(user, amount);
         } else {
-            user.call{value: amount}("");
+            (success, ) = user.call{value: amount}("");
         }
     }
 }

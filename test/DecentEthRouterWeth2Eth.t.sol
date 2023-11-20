@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-
 import {Test, console2} from "forge-std/Test.sol";
 import {AliceAndBobScenario} from "./common/AliceAndBobScenario.sol";
-import {NonEthChainWethHelper} from "./common/NonEthChainWethHelper.sol";
+import {WethMintHelper} from "./common/WethMintHelper.sol";
 import {CoolCat} from "./common/CoolCat.sol";
 import {WethChain2EthChainScenario} from "./common/WethChain2EthChainScenario.sol";
 import {AssertionHelpers} from "./common/AssertionHelpers.sol";
@@ -12,7 +11,7 @@ import {AssertionHelpers} from "./common/AssertionHelpers.sol";
 contract SourceChainWethCommonHelpers is
     AliceAndBobScenario,
     AssertionHelpers,
-    NonEthChainWethHelper
+    WethMintHelper
 {
     uint aliceNonEthBalance = 1 ether; //
     uint aliceInitialWethBalance = 10 ether;

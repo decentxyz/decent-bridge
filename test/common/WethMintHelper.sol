@@ -2,9 +2,10 @@
 pragma solidity ^0.8.0;
 
 import {ERC20} from "solmate/tokens/ERC20.sol";
+import {WETH} from "solmate/tokens/WETH.sol";
 import {BaseChainSetup} from "./BaseChainSetup.sol";
 
-contract NonEthChainWethHelper is BaseChainSetup {
+contract WethMintHelper is BaseChainSetup {
     mapping(string => address) wethWhaleLookup;
 
     function setupWhaleInfo() public {
@@ -22,9 +23,17 @@ contract NonEthChainWethHelper is BaseChainSetup {
         uint256 amount
     ) public {
         switchTo(chain);
-        address whale = wethWhaleLookup[chain];
-        startImpersonating(whale);
-        ERC20(wethLookup[chain]).transfer(to, amount);
+        if (gasEthLookup[chain]) {
+            startImpersonating(to);
+            WETH(payable(wethLookup[chain])).deposit{value: amount}();
+        } else {
+            address whale = wethWhaleLookup[chain];
+            if (whale == address(0)) {
+                revert(string.concat("no whale for chain ", chain));
+            }
+            startImpersonating(whale);
+            ERC20(wethLookup[chain]).transfer(to, amount);
+        }
         stopImpersonating();
     }
 }

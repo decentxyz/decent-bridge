@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
+import {Executor} from "../src/Executor.sol";
 import {Test, console, console2} from "forge-std/Test.sol";
 import {CommonBase} from "forge-std/Base.sol";
 import {StdCheats} from "forge-std/StdCheats.sol";
@@ -12,16 +13,19 @@ import {CommonRouterSetup} from "test/util/CommonRouterSetup.sol";
 import {BridgedWeth} from "./DecentWethRouter.t.sol";
 
 contract DecentEthRouterNonEthChainTest is CommonRouterSetup {
-    // TestConfig testConfig = new TestConfig();
-    // address lzEndpoint = testConfig.readLzEndpoint("avalanche");
-    // polygon mainnet
     BridgedWeth weth;
     address lzEndpointPolygon = 0x3c2269811836af69497E5F486A85D7316753cf62;
     bool isGasEth = false;
 
     function setUp() public {
         weth = new BridgedWeth();
-        router = new DecentEthRouter(payable(address(weth)), isGasEth);
+        Executor executor = new Executor(payable(address(weth)), isGasEth);
+        router = new DecentEthRouter(
+            payable(address(weth)),
+            isGasEth,
+            address(executor)
+        );
+        executor.transferOwnership(address(router));
         dcntEth = new DcntEth(lzEndpointPolygon);
         router.registerDcntEth(address(dcntEth));
         dcntEth.transferOwnership(address(router));

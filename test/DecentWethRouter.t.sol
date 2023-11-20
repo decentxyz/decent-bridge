@@ -9,6 +9,7 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 import {DecentEthRouter} from "src/DecentEthRouter.sol";
 import {DcntEth} from "src/DcntEth.sol";
 import {CommonRouterSetup} from "test/util/CommonRouterSetup.sol";
+import {Executor} from "../src/Executor.sol";
 
 contract BridgedWeth is ERC20("Wrapped Ether", "WETH", 18) {
     function mint(address to, uint amount) external {
@@ -25,7 +26,13 @@ contract DecentEthRouterNonEthChainTest is CommonRouterSetup {
         uint maticFork = vm.createSelectFork("polygon");
         assertEq(vm.activeFork(), maticFork);
         weth = new BridgedWeth();
-        router = new DecentEthRouter(payable(address(weth)), isGasEth);
+        Executor executor = new Executor(payable(address(weth)), isGasEth);
+        router = new DecentEthRouter(
+            payable(address(weth)),
+            isGasEth,
+            address(executor)
+        );
+        executor.transferOwnership(address(router));
         dcntEth = new DcntEth(lzEndpointPolygon);
         router.registerDcntEth(address(dcntEth));
         dcntEth.transferOwnership(address(router));

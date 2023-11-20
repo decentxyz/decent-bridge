@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
+import {Executor} from "../src/Executor.sol";
 import {Test, console, console2} from "forge-std/Test.sol";
 import {CommonBase} from "forge-std/Base.sol";
 import {StdCheats} from "forge-std/StdCheats.sol";
@@ -18,7 +19,13 @@ contract DecentEthRouterNoFork is CommonRouterSetup {
 
     function setUp() public {
         weth = new WETH();
-        router = new DecentEthRouter(payable(address(weth)), isGasEth);
+        Executor executor = new Executor(payable(address(weth)), isGasEth);
+        router = new DecentEthRouter(
+            payable(address(weth)),
+            isGasEth,
+            address(executor)
+        );
+        executor.transferOwnership(address(router));
         dcntEth = new DcntEth(lzEndpointArbitrum);
         router.registerDcntEth(address(dcntEth));
         dcntEth.transferOwnership(address(router));

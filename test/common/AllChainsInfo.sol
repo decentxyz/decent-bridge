@@ -11,7 +11,7 @@ contract AllChainsInfo is LzChainSetup {
         configureLzChain(
             "optimism",
             111,
-            address(0x3c2269811836af69497E5F486A85D7316753cf62)
+            0x3c2269811836af69497E5F486A85D7316753cf62
         );
     }
 
@@ -20,7 +20,7 @@ contract AllChainsInfo is LzChainSetup {
             "arbitrum",
             true,
             42161,
-            address(0x82aF49447D8a07e3bd95BD0d56f35241523fBab1)
+            0x82aF49447D8a07e3bd95BD0d56f35241523fBab1
         );
         configureLzChain(
             "arbitrum",
@@ -34,12 +34,40 @@ contract AllChainsInfo is LzChainSetup {
             "ethereum",
             true,
             1,
-            address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2)
+            0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
         );
         configureLzChain(
             "ethereum",
             101,
-            address(0x66A71Dcef29A0fFBDBE3c6a460a3B5BC225Cd675)
+            0x66A71Dcef29A0fFBDBE3c6a460a3B5BC225Cd675
+        );
+    }
+
+    function configureSepolia() private {
+        configureChain(
+            "sepolia",
+            true,
+            11155111,
+            0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9
+        );
+        configureLzChain(
+            "sepolia",
+            10161,
+            0xae92d5aD7583AD66E49A0c67BAd18F6ba52dDDc1
+        );
+    }
+
+    function configureFtmTestnet() private {
+        configureChain(
+            "ftm-testnet",
+            false,
+            4002,
+            0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9
+        );
+        configureLzChain(
+            "ftm-testnet",
+            10112,
+            0x7dcAD72640F835B0FA36EFD3D6d3ec902C7E5acf
         );
     }
 
@@ -48,7 +76,7 @@ contract AllChainsInfo is LzChainSetup {
         configureLzChain(
             "zora",
             195,
-            address(0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7)
+            0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7
         );
     }
 
@@ -62,7 +90,7 @@ contract AllChainsInfo is LzChainSetup {
         configureLzChain(
             "avalanche",
             106,
-            address(0x3c2269811836af69497E5F486A85D7316753cf62)
+            0x3c2269811836af69497E5F486A85D7316753cf62
         );
     }
 
@@ -76,7 +104,7 @@ contract AllChainsInfo is LzChainSetup {
         configureLzChain(
             "polygon",
             109,
-            address(0x3c2269811836af69497E5F486A85D7316753cf62)
+            0x3c2269811836af69497E5F486A85D7316753cf62
         );
     }
 
@@ -87,5 +115,7 @@ contract AllChainsInfo is LzChainSetup {
         configureZora();
         configureAvalanche();
         configurePolygon();
+        configureFtmTestnet();
+        configureSepolia();
     }
 }

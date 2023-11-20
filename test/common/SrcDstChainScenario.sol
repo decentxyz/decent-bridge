@@ -8,8 +8,10 @@ contract SrcDstChainScenario is RouterDeploymentSetup {
     string dstChain;
 
     function deploySrcDst() public {
-        deployRouter(srcChain);
-        deployRouter(dstChain);
+        deployRouterAndDecentEth(srcChain);
+        registerDecentEth(srcChain);
+        deployRouterAndDecentEth(dstChain);
+        registerDecentEth(dstChain);
         wireUp(srcChain, dstChain);
     }
 }

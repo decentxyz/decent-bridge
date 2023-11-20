@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
+
 import {Test} from "forge-std/Test.sol";
 import {DecentEthRouter} from "src/DecentEthRouter.sol";
 import {DcntEth} from "src/DcntEth.sol";
@@ -126,7 +127,7 @@ contract CommonRouterSetup is Test {
             amount,
             ""
         );
-
+        vm.startPrank(address(dcntEth));
         router.onOFTReceived(
             srcChainId,
             _srcAddress,
@@ -135,5 +136,6 @@ contract CommonRouterSetup is Test {
             amount,
             _payload
         );
+        vm.stopPrank();
     }
 }

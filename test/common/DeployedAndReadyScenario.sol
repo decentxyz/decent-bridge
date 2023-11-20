@@ -5,14 +5,14 @@ import {AliceAndBobScenario} from "./AliceAndBobScenario.sol";
 import {AssertionHelpers} from "./AssertionHelpers.sol";
 import {AllChainsInfo} from "./AllChainsInfo.sol";
 import {console2} from "forge-std/console2.sol";
-import {NonEthChainWethHelper} from "./NonEthChainWethHelper.sol";
+import {WethMintHelper} from "./WethMintHelper.sol";
 import {CoolCatScenario} from "./CoolCatScenario.sol";
 
 contract DeployedAndReadyTestScenario is
     AliceAndBobScenario,
     AssertionHelpers,
     AllChainsInfo,
-    NonEthChainWethHelper,
+    WethMintHelper,
     CoolCatScenario
 {
     uint256 AVAILABLE_LIQUIDITY = 10 ether;
@@ -28,7 +28,7 @@ contract DeployedAndReadyTestScenario is
     }
 
     function setUp() public virtual {
-        setRuntime(true);
+        setRuntime(ENV_FORGE_TEST);
         if (bytes(srcChain).length == 0) {
             revert("srcChain not set");
         }

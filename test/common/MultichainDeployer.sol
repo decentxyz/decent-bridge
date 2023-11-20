@@ -18,8 +18,8 @@ contract MultichainDeployer is RouterDeploymentSetup {
     function deploy(string[] memory chains) internal {
         for (uint i = 0; i < chains.length; i++) {
             string memory chain = chains[i];
-            deployRouter(chain);
+            deployRouterAndDecentEth(chain);
+            registerDecentEth(chain);
         }
-        dumpDeployments();
     }
 }

@@ -1,73 +1,113 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/Script.sol";
-import {CommonBase} from "forge-std/Base.sol";
-import {DecentEthRouter} from "src/DecentEthRouter.sol";
-import {DcntEth} from "src/DcntEth.sol";
+import {DecentEthRouter} from "../src/DecentEthRouter.sol";
 import {WETH} from "solmate/tokens/WETH.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
+import {Owned} from "solmate/auth/Owned.sol";
+import {console2} from "forge-std/console2.sol";
+import {Script} from "forge-std/Script.sol";
+import {BroadcastMultichainSetup} from "./util/BroadcastMultichainSetup.sol";
+import {ParseChainsFromEnvVars} from "./util/ParseChainsFromEnvVars.sol";
+import {LoadDeployedContracts} from "./util/LoadDeployedContracts.sol";
+import {MultichainDeployer} from "../test/common/MultichainDeployer.sol";
+import {AllChainsInfo} from "../test/common/AllChainsInfo.sol";
+import {RouterActions} from "../test/common/RouterActions.sol";
 
-contract BridgedWeth is ERC20("Wrapped Ether", "WETH", 18) {
-    function mint(address to, uint amount) external {
+contract FakeWeth is ERC20, Owned {
+    constructor() ERC20("Wrapped ETH", "WETH", 18) Owned(msg.sender) {}
+
+    function mint(address to, uint256 amount) public onlyOwner {
         _mint(to, amount);
     }
 }
 
-contract DeployRouter is Script {
-    string chainAlias;
-    WETH weth;
-    address lzEndpoint;
-    bool isGasEth;
-    bool isMainnet;
-
-    function setupWeth() public virtual {}
-
-    function run() public {
-        vm.createSelectFork(chainAlias);
-        vm.startBroadcast();
-        setupWeth();
-        DecentEthRouter router = new DecentEthRouter(
-            payable(address(weth)),
-            isGasEth
-        );
-        DcntEth dcntEth = new DcntEth(lzEndpoint);
-        dcntEth.transferOwnership(address(router));
-        router.registerDcntEth(address(dcntEth));
-        vm.stopBroadcast();
+contract Common is
+    Script,
+    MultichainDeployer,
+    AllChainsInfo,
+    ParseChainsFromEnvVars,
+    LoadDeployedContracts,
+    RouterActions
+{
+    function overrideFtmTestnet() private {
+        gasEthLookup["ftm-testnet"] = true;
+        wethLookup["ftm-testnet"] = 0x07B9c47452C41e8E00f98aC4c075F5c443281d2A;
     }
-}
 
-contract EnvironmentVarTest is Script {
-    function run() public view {
-        string memory chainAlias = vm.envString("CHAIN");
-        address lzEndpoint = vm.envAddress("LZ_ENDPOINT");
-        bool isGasEth = vm.envBool("GAS_ETH");
-        console2.log("chain Alias", chainAlias);
-        console2.log("lz endpoint", lzEndpoint);
-        console2.log("is gas eth", isGasEth);
-    }
-}
-
-contract DeployToChain is DeployRouter {
-    function setupWeth() public override {
-        if (!isMainnet && !isGasEth) {
-            BridgedWeth custom_weth = new BridgedWeth();
-            weth = WETH(payable(address(custom_weth)));
+    function setUp() public virtual override {
+        if (vm.envOr("TESTNET", false)) {
+            setRuntime(ENV_TESTNET);
+        } else if (vm.envOr("MAINNET", false)) {
+            setRuntime(ENV_MAINNET);
         } else {
-            weth = WETH(payable(vm.envAddress("WETH")));
+            setRuntime(ENV_FORK);
         }
-        console2.log("weth", address(weth));
+        setupChainInfo();
+        overrideFtmTestnet();
     }
+}
 
-    constructor() {
-        lzEndpoint = vm.envAddress("LZ_ENDPOINT");
-        chainAlias = vm.envString("CHAIN");
-        isMainnet = vm.envBool("MAINNET");
-        isGasEth = vm.envBool("GAS_ETH");
-        console2.log("lz endpoint", lzEndpoint);
-        console2.log("chain Alias", chainAlias);
-        console2.log("running in mainnet", isMainnet);
-        console2.log("is gas eth", isGasEth);
+contract Bridge is Common {
+    function run() public {
+        uint64 gas = 120e3;
+        uint amount = vm.envUint("AMOUNT");
+        string memory src = vm.envString("src");
+        string memory dst = vm.envString("dst");
+        loadForChain(src);
+        loadForChain(dst);
+
+        address from = vm.envOr("from", msg.sender);
+        address to = vm.envOr("to", msg.sender);
+
+        switchTo(src);
+        DecentEthRouter router = routerLookup[src];
+
+        (uint nativeFee, uint zroFee) = router.estimateSendAndCallFee(
+            0,
+            lzIdLookup[dst],
+            to,
+            amount,
+            gas,
+            true,
+            ""
+        );
+
+        startImpersonating(from);
+        router.bridge{value: nativeFee + zroFee + amount}(
+            lzIdLookup[dst],
+            to,
+            amount,
+            gas,
+            true
+        );
+        stopImpersonating();
+    }
+}
+
+contract AddLiquidity is Common {
+    function run() public {
+        string memory chain = vm.envString("chain");
+        uint amount = vm.envUint("LIQUIDITY");
+        loadForChain(chain);
+        addLiquidity(chain, amount);
+    }
+}
+
+contract WireUp is Common {
+    function run() public {
+        string memory src = vm.envString("src");
+        string memory dst = vm.envString("dst");
+        loadForChain(src);
+        loadForChain(dst);
+        wireUp(src, dst);
+    }
+}
+
+contract Deploy is Common {
+    function run() public {
+        string memory chain = vm.envString("chain");
+        console2.log("chain is", chain);
+        deployAndRegister(chain);
     }
 }

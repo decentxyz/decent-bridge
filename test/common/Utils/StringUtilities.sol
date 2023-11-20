@@ -6,7 +6,10 @@ import "solidity-stringutils/strings.sol";
 contract StringUtilities {
     using strings for *;
 
-    function split(string memory inputStr, string memory delimiter) internal returns (string[] memory) {
+    function split(
+        string memory inputStr,
+        string memory delimiter
+    ) internal pure returns (string[] memory) {
         strings.slice memory sliced = inputStr.toSlice();
         strings.slice memory delim = delimiter.toSlice();
         uint count = inputStr.toSlice().count(delim) + 1;
