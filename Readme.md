@@ -52,7 +52,7 @@ does.
 ### Deploying the Router
 
 First we have to deploy the router contracts. The script for this deployment
-is in [DeployRouter.s.sol](./script/Deploy.s.sol).
+is in [DeployRouter.s.sol](./script/Scripts.s.sol).
 
 ### Wiring up Contracts
 

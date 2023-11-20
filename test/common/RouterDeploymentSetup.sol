@@ -55,10 +55,7 @@ contract RouterDeploymentSetup is LzChainSetup, DeploymentRecorder {
         registerDecentEth(chain);
     }
 
-    function _wireUpRouterOneDirection(
-        string memory src,
-        string memory dst
-    ) private {
+    function wireUpSrcToDst(string memory src, string memory dst) public {
         switchTo(src);
         DecentEthRouter srcRouter = routerLookup[src];
         startImpersonating(srcRouter.owner());
@@ -72,7 +69,7 @@ contract RouterDeploymentSetup is LzChainSetup, DeploymentRecorder {
     }
 
     function wireUp(string memory src, string memory dst) public {
-        _wireUpRouterOneDirection(src, dst);
-        _wireUpRouterOneDirection(dst, src);
+        wireUpSrcToDst(src, dst);
+        wireUpSrcToDst(dst, src);
     }
 }

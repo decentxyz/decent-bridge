@@ -100,7 +100,7 @@ contract WireUp is Common {
         string memory dst = vm.envString("dst");
         loadForChain(src);
         loadForChain(dst);
-        wireUp(src, dst);
+        wireUpSrcToDst(src, dst);
     }
 }
 

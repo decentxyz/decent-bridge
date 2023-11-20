@@ -1,11 +1,13 @@
 include .env
 
-COMMON_PARAMS := --broadcast -vvvv --slow
+.phony: deploy-chain
+
+COMMON_PARAMS := --broadcast -vvvv
 
 ifeq ($(MAINNET),true)
-    COMMON_PARAMS += --private-key=$(MAINNET_ACCOUNT) --verify
+    COMMON_PARAMS += --private-key=$(MAINNET_ACCOUNT) --verify --slow
 else ifeq ($(TESTNET),true)
-    COMMON_PARAMS += --private-key=$(TESTNET_ACCOUNT) --verify
+    COMMON_PARAMS += --private-key=$(TESTNET_ACCOUNT) --verify --slow
 else
     COMMON_PARAMS += --unlocked --sender=$(TESTNET_ACCOUNT_ADDRESS)
 endif
@@ -48,50 +50,38 @@ start-forknet:
 	sleep 2;
 	$(MAKE) give-money CHAINS=$(CHAINS) to=$(TESTNET_ACCOUNT_ADDRESS) amount="900 ether";
 
-copy-addresses:
-	cp ./deployments/deployedAddresses.json ~/decentxyz/box-monorepo/apps/box-scenarios/assets/.
-	cp ./deployments/deployedAddresses.json ~/decentxyz/box-monorepo/apps/box-api/src/getBoxAction/decentBridge/.
-	cp ./deployments/deployedAddresses.json ~/decentxyz/energy-dashboard/constants/.
-
-#deploy-chain:
-#	forge script script/Deploy.s.sol:Deploy $(COMMON_PARAMS)
-#	$(MAKE) copy-addresses
+#copy-addresses:
+#	cp ./deployments/deployedAddresses.json ~/decentxyz/box-monorepo/apps/box-scenarios/assets/.
+#	cp ./deployments/deployedAddresses.json ~/decentxyz/box-monorepo/apps/box-api/src/getBoxAction/decentBridge/.
+#	cp ./deployments/deployedAddresses.json ~/decentxyz/energy-dashboard/constants/.
 
 DECIMALS := 1000000000000000000 # for convenience
 
 add-liquidity:
 	$(eval LIQUIDITY=$(shell echo "scale=10; $(amount) * $(DECIMALS)" | bc | sed 's/\..*//'))
 	LIQUIDITY=$(LIQUIDITY) \
-	forge script script/Deploy.s.sol:AddLiquidity $(COMMON_PARAMS)
+	forge script script/Scripts.s.sol:AddLiquidity $(COMMON_PARAMS)
 
 bridge:
 	$(eval AMOUNT=$(shell echo "scale=10; $(amount) * $(DECIMALS)" | bc | sed 's/\..*//'))
 	AMOUNT=$(AMOUNT) \
-	forge script script/Deploy.s.sol:Bridge $(COMMON_PARAMS)
+	forge script script/Scripts.s.sol:Bridge $(COMMON_PARAMS)
 
 deploy-chain:
-	forge script script/Deploy.s.sol:Deploy $(COMMON_PARAMS)
+	forge script script/Scripts.s.sol:Deploy $(COMMON_PARAMS)
 
 wire-up:
-	forge script script/Deploy.s.sol:WireUp $(COMMON_PARAMS)
+	forge script script/Scripts.s.sol:WireUp $(COMMON_PARAMS)
 
 bridge-e2e:
-	CHAIN=$(FIRST_CHAIN) make deploy
-	CHAIN=$(SECOND_CHAIN) make deploy
-	AMOUNT=0.01 CHAIN=$(FIRST_CHAIN) make add-liquidity
-	AMOUNT=0.01 CHAIN=$(SECOND_CHAIN) make add-liquidity
-	SRC_CHAIN=$(FIRST_CHAIN) DST_CHAIN=$(SECOND_CHAIN) make wire-up
-	SRC_CHAIN=$(SECOND_CHAIN) DST_CHAIN=$(FIRST_CHAIN) make wire-up
-	AMOUNT=0.0069 SRC_CHAIN=$(FIRST_CHAIN) DST_CHAIN=$(SECOND_CHAIN) make bridge
-	AMOUNT=0.0069 SRC_CHAIN=$(SECOND_CHAIN) DST_CHAIN=$(FIRST_CHAIN) make bridge
-
-wire-up-bridge:
-	AMOUNT=0.01 CHAIN=$(FIRST_CHAIN) make add-liquidity
-	AMOUNT=0.01 CHAIN=$(SECOND_CHAIN) make add-liquidity
-	SRC_CHAIN=$(FIRST_CHAIN) DST_CHAIN=$(SECOND_CHAIN) make wire-up
-	SRC_CHAIN=$(SECOND_CHAIN) DST_CHAIN=$(FIRST_CHAIN) make wire-up
-	AMOUNT=0.0069 SRC_CHAIN=$(FIRST_CHAIN) DST_CHAIN=$(SECOND_CHAIN) make bridge
-	AMOUNT=0.0069 SRC_CHAIN=$(SECOND_CHAIN) DST_CHAIN=$(FIRST_CHAIN) make bridge
+	$(MAKE) deploy-chain chain=$(src)
+	$(MAKE) deploy-chain chain=$(dst)
+	$(MAKE) wire-up src=$(src) dst=$(dst)
+	$(MAKE) wire-up src=$(dst) dst=$(src)
+	$(MAKE) add-liquidity chain=$(src) amount=0.1
+	$(MAKE) add-liquidity chain=$(dst) amount=0.1
+	$(MAKE) bridge amount=0.069 src=$(src) dst=$(dst)
+	$(MAKE) bridge amount=0.069 src=$(dst) dst=$(src)
 
 ##### whole lotta convenience scripts
 watch-test:
