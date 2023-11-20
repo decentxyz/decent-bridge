@@ -78,10 +78,10 @@ bridge-e2e:
 	$(MAKE) deploy-chain chain=$(dst)
 	$(MAKE) wire-up src=$(src) dst=$(dst)
 	$(MAKE) wire-up src=$(dst) dst=$(src)
-	$(MAKE) add-liquidity chain=$(src) amount=0.1
-	$(MAKE) add-liquidity chain=$(dst) amount=0.1
-	$(MAKE) bridge amount=0.069 src=$(src) dst=$(dst)
-	$(MAKE) bridge amount=0.069 src=$(dst) dst=$(src)
+	$(MAKE) add-liquidity chain=$(src) amount=0.01
+	$(MAKE) add-liquidity chain=$(dst) amount=0.01
+	$(MAKE) bridge amount=0.0069 src=$(src) dst=$(dst)
+	$(MAKE) bridge amount=0.0069 src=$(dst) dst=$(src)
 
 ##### whole lotta convenience scripts
 watch-test:

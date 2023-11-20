@@ -12,7 +12,6 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
     WETH public weth;
     DcntEth public dcntEth;
     Executor public executor;
-    address lzAuthorized;
 
     uint8 public constant MT_ETH_TRANSFER = 0;
     uint8 public constant MT_ETH_TRANSFER_WITH_PAYLOAD = 1;
