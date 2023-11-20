@@ -22,7 +22,6 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
     bool public gasCurrencyIsEth; // for chains that use ETH as gas currency
 
     mapping(uint16 => address) public destinationBridges;
-    mapping(uint16 => address) public destinationDcntEth;
 
     constructor(
         address payable _wethAddress,
@@ -42,7 +41,7 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
     modifier onlyLzApp() {
         require(
             address(dcntEth) == msg.sender,
-            "DecentEthRouter: only Lz App can call"
+            "DecentEthRouter: only lz App can call"
         );
         _;
     }
@@ -75,7 +74,6 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
         uint _minDstGas
     ) public onlyOwner {
         destinationBridges[_dstChainId] = _routerAddress;
-        destinationDcntEth[_dstChainId] = dstDcntEth;
         dcntEth.setTrustedRemote(
             _dstChainId,
             abi.encodePacked(dstDcntEth, address(dcntEth))
@@ -290,29 +288,6 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
         } else {
             weth.approve(address(executor), _amount);
             executor.execute(_from, _to, deliverEth, _amount, callPayload);
-            //if (!gasCurrencyIsEth || !deliverEth) {
-            //    uint256 wethBalanceBefore = weth.balanceOf(address(this));
-            //    weth.approve(_to, _amount);
-
-            //    (bool success, ) = _to.call(callPayload);
-
-            //    if (!success) {
-            //        weth.transfer(_from, _amount);
-            //        return;
-            //    }
-
-            //    uint256 remainingBridgedWethAfterCall = _amount -
-            //        (wethBalanceBefore - weth.balanceOf(address(this)));
-
-            //    // refund the sender with excess WETH
-            //    weth.transfer(_from, remainingBridgedWethAfterCall);
-            //} else {
-            //    weth.withdraw(_amount);
-            //    (bool success, ) = _to.call{value: _amount}(callPayload);
-            //    if (!success) {
-            //        payable(_from).transfer(_amount);
-            //    }
-            //}
         }
     }
 
