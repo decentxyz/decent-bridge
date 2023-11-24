@@ -19,4 +19,9 @@ broadcast
 *.log
 *_PID
 
+# forge deploy stuff
+/generated
+/deployments/localhost
+/deployments/31337
+
 

@@ -67,11 +67,31 @@ bridge:
 	AMOUNT=$(AMOUNT) \
 	forge script script/Scripts.s.sol:Bridge $(COMMON_PARAMS)
 
+mint-to:
+	$(eval AMOUNT=$(shell echo "scale=10; $(amount) * $(DECIMALS)" | bc | sed 's/\..*//'))
+	AMOUNT=$(AMOUNT) \
+	forge script script/fork/MintToken.s.sol:MintToken $(COMMON_PARAMS)
+
 deploy-chain:
 	forge script script/Scripts.s.sol:Deploy $(COMMON_PARAMS)
 
 wire-up:
 	forge script script/Scripts.s.sol:WireUp $(COMMON_PARAMS)
+
+deploy-songcamp:
+	forge script script/partnerships/Songcamp.s.sol:Songcamp $(COMMON_PARAMS)
+
+local-deploy:
+	# TODO: move this to a js script and make it a hella loop
+	$(MAKE) deploy-chain chain=zora
+	$(MAKE) deploy-chain chain=optimism
+	$(MAKE) wire-up src=zora dst=optimism
+	$(MAKE) wire-up src=optimism dst=zora
+	$(MAKE) add-liquidity chain=optimism amount=10
+	$(MAKE) add-liquidity chain=zora amount=10
+	$(MAKE) bridge amount=0.0069 src=optimism dst=zora
+	$(MAKE) bridge amount=0.0069 src=zora dst=optimism
+
 
 bridge-e2e:
 	$(MAKE) deploy-chain chain=$(src)

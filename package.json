@@ -5,12 +5,15 @@
   "main": "js/gasReport.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "forge-deploy gen-deployer && forge build",
+    "deploy": "forge script script/Counter.s.sol --rpc-url $RPC_URL --broadcast --private-key $DEPLOYER_PRIVATE_KEY -v && forge-deploy sync;"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "forge-deploy": "^0.2.0",
     "prettier": "^3.0.3",
     "prettier-plugin-solidity": "^1.1.3"
   },

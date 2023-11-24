@@ -3,7 +3,10 @@ src = "src"
 out = "out"
 libs = ["lib"]
 solc = "0.8.20"
-fs_permissions = [{ access = "read", path = "./constants"}, { access = "read-write", path = "./deployments"}]
+fs_permissions = [
+    { access = "read", path = "./constants"},
+    { access = "read-write", path = "./deployments"}
+]
 gas_reports = ["DcntEth", "DecentEthRouter"]
 
 [rpc_endpoints]
