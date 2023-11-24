@@ -18,6 +18,9 @@
     "prettier-plugin-solidity": "^1.1.3"
   },
   "dependencies": {
+    "hardhat": "^2.19.1",
+    "hardhat-foundry": "^0.0.5",
+    "hardhat-viem": "^1.0.0",
     "viem": "^1.19.3"
   }
 }
