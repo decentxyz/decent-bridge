@@ -19,6 +19,9 @@ ftm-testnet = "${FTM_TESTNET_RPC}"
 fuji = "${FUJI_RPC}"
 sepolia = "${SEPOLIA_RPC}"
 zora = "${ZORA_RPC}"
+zora-goerli = "${ZORA_GOERLI_RPC}"
+optimism-goerli = "${OPTIMISM_GOERLI_RPC}"
+
 fork_ethereum = "http://localhost:${FORK_ETHEREUM_PORT}"
 fork_arbitrum = "http://localhost:${FORK_ARBITRUM_PORT}"
 fork_optimism = "http://localhost:${FORK_OPTIMISM_PORT}"
@@ -30,6 +33,7 @@ fork_polygon= "http://localhost:${FORK_POLYGON_PORT}"
 ethereum = { key = "${ETHERSCAN_ETHERUM_API_KEY}", url = "https://api.etherscan.io/api" }
 arbitrum = { key = "${ARBISCAN_API_KEY}", url = "https://api.arbiscan.io/api" }
 optimism = { key = "${OPTIMISM_ETHERSCAN_API_KEY}", url = "https://api-optimistic.etherscan.io/api" }
+optimism-goerli = { key = "${OPTIMISM_ETHERSCAN_API_KEY}", url = "https://api-goerli-optimistic.etherscan.io/api" }
 polygon = { key = "${POLYGONSCAN_API_KEY}", url = "https://api-testnet.polygonscan.com/api" }
 ftm-testnet = { key = "${FTMSCAN_API_KEY}", url = "https://api-testnet.ftmscan.com/api" }
 fuji = { key = "${SNOWTRACE_API_KEY}", url = "https://api-testnet.snowtrace.io/api" }
