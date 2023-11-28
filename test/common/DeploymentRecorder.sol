@@ -20,7 +20,7 @@ contract DeploymentRecorder is BaseChainSetup {
     }
 
     function dumpChainDeployments(string memory chain) internal {
-        if (isTestnet()) {
+        if (isForgeTest()) {
             return;
         }
         string memory deployedAddresses = vm.serializeBool(

@@ -26,6 +26,8 @@ fork_ethereum = "http://localhost:${FORK_ETHEREUM_PORT}"
 fork_arbitrum = "http://localhost:${FORK_ARBITRUM_PORT}"
 fork_optimism = "http://localhost:${FORK_OPTIMISM_PORT}"
 fork_zora= "http://localhost:${FORK_ZORA_PORT}"
+fork_sepolia= "http://localhost:${FORK_SEPOLIA_PORT}"
+fork_zora-goerli= "http://localhost:${FORK_ZORA_GOERLI_PORT}"
 fork_avalanche= "http://localhost:${FORK_AVALANCHE_PORT}"
 fork_polygon= "http://localhost:${FORK_POLYGON_PORT}"
 
