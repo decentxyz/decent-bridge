@@ -7,7 +7,13 @@ import "./C4TEST.sol";
 
 contract Songcamp is Script, AllChainsInfo, C4TEST {
     function setUp() public {
-        setRuntime(ENV_FORK);
+        if (vm.envOr("TESTNET", false)) {
+            setRuntime(ENV_TESTNET);
+        } else if (vm.envOr("MAINNET", false)) {
+            setRuntime(ENV_MAINNET);
+        } else {
+            setRuntime(ENV_FORK);
+        }
         setupChainInfo();
     }
 
@@ -17,5 +23,6 @@ contract Songcamp is Script, AllChainsInfo, C4TEST {
         switchTo(chain);
         nft = new C4TEST();
         nft.toggleSaleEnabled();
+        C4TEST(0xd643567B131777cD52841Ca1FF7663Ba890a0092).setMintPrice(0.00001 ether);
     }
 }

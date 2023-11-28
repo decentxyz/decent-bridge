@@ -33,19 +33,16 @@ contract Songcamp is Test, AliceAndBobScenario {
 
     function getSignature(
         uint num,
-        uint nonce,
         uint256[] memory tokenIds,
         uint256[] memory songSelections,
         uint nftId,
         uint songChoiceId
-    ) public returns (bytes memory) {
+    ) public returns (bytes memory, address) {
         uint256 privateKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
         address owner = vm.addr(privateKey);
         nft.safeMint{value: price * num}(owner);
 
-        bytes32 hash = keccak256(
-            abi.encodePacked(tokenIds, songSelections, nonce)
-        );
+        bytes32 hash = keccak256(abi.encodePacked(tokenIds, songSelections));
         console2.logBytes32(hash);
 
         bytes32 ethSignedHash = keccak256(abi.encodePacked(BANNER, hash));
@@ -53,11 +50,10 @@ contract Songcamp is Test, AliceAndBobScenario {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, ethSignedHash);
         bytes memory signature = abi.encodePacked(r, s, v);
         console2.logBytes(signature);
-        return signature;
+        return (signature, owner);
     }
 
     function testMultiWriteToDiscSignature() public {
-        uint nonce = 1;
         uint num = 1;
         uint nftId = 1;
         uint songChoiceId = 3;
@@ -66,23 +62,20 @@ contract Songcamp is Test, AliceAndBobScenario {
         uint256[] memory songSelections = new uint256[](num);
         songSelections[0] = songChoiceId; // anything between 1 to 5
 
-        bytes memory signature = getSignature(
+        (bytes memory signature, address owner) = getSignature(
             num,
-            nonce,
             tokenIds,
             songSelections,
             nftId,
             songChoiceId
         );
 
-        nft.multiWriteToDiscSignature(
-            tokenIds, songSelections, nonce, signature
-        );
+        nft.multiWriteToDiscSignature(tokenIds, songSelections, signature);
 
         (address writerAddress, uint256 choiceId, bool written) = nft
             .readCdMemory(nftId);
         assertEq(choiceId, songChoiceId);
-        assertEq(writerAddress, address(this));
+        assertEq(writerAddress, address(owner));
         assertEq(written, true);
     }
 }

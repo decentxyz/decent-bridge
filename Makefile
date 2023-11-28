@@ -92,7 +92,6 @@ local-deploy:
 	$(MAKE) bridge amount=0.0069 src=optimism dst=zora
 	$(MAKE) bridge amount=0.0069 src=zora dst=optimism
 
-
 bridge-e2e:
 	$(MAKE) deploy-chain chain=$(src)
 	$(MAKE) deploy-chain chain=$(dst)

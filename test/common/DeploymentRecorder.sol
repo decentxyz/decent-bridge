@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {CommonBase} from "forge-std/Base.sol";
+import {BaseChainSetup} from "./BaseChainSetup.sol";
 
-contract DeploymentRecorder is CommonBase {
+contract DeploymentRecorder is BaseChainSetup {
     string folderName = "deployments";
     string recorderKey = "addresses";
 
@@ -20,6 +20,9 @@ contract DeploymentRecorder is CommonBase {
     }
 
     function dumpChainDeployments(string memory chain) internal {
+        if (isForgeTest()) {
+            return;
+        }
         string memory deployedAddresses = vm.serializeBool(
             _chainRecordKey(chain),
             "done",

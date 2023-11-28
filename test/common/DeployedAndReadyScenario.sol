@@ -7,14 +7,17 @@ import {AllChainsInfo} from "./AllChainsInfo.sol";
 import {console2} from "forge-std/console2.sol";
 import {WethMintHelper} from "./WethMintHelper.sol";
 import {CoolCatScenario} from "./CoolCatScenario.sol";
+import {LoadDeployedContracts} from "../../script/util/LoadDeployedContracts.sol";
 
 contract DeployedAndReadyTestScenario is
     AliceAndBobScenario,
     AssertionHelpers,
     AllChainsInfo,
     WethMintHelper,
-    CoolCatScenario
+    CoolCatScenario,
+    LoadDeployedContracts
 {
+    bool load = false;
     uint256 AVAILABLE_LIQUIDITY = 10 ether;
 
     function addLiquidityMintWethToSelfIfNeeded(
@@ -37,7 +40,12 @@ contract DeployedAndReadyTestScenario is
         }
         setupChainInfo();
         setupWhaleInfo();
-        deploySrcDst();
+        if (load) {
+            loadForChain(srcChain);
+            loadForChain(dstChain);
+        } else {
+            deploySrcDst();
+        }
         addLiquidityMintWethToSelfIfNeeded(srcChain, AVAILABLE_LIQUIDITY);
         addLiquidityMintWethToSelfIfNeeded(dstChain, AVAILABLE_LIQUIDITY);
     }

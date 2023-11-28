@@ -62,7 +62,7 @@ contract AllChainsInfo is LzChainSetup {
             "ftm-testnet",
             false,
             4002,
-            0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9
+            0x07B9c47452C41e8E00f98aC4c075F5c443281d2A
         );
         configureLzChain(
             "ftm-testnet",
@@ -77,6 +77,24 @@ contract AllChainsInfo is LzChainSetup {
             "zora",
             195,
             0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7
+        );
+    }
+
+    function configureZoraGoerli() private {
+        configureChain("zora-goerli", true, 999, OP_STACK_WETH);
+        configureLzChain(
+            "zora-goerli",
+            10195,
+            0x83c73Da98cf733B03315aFa8758834b36a195b87
+        );
+    }
+
+    function configureOptimismGoerli() private {
+        configureChain("optimism-goerli", true, 420, OP_STACK_WETH);
+        configureLzChain(
+            "optimism-goerli",
+            10132,
+            0xae92d5aD7583AD66E49A0c67BAd18F6ba52dDDc1
         );
     }
 
@@ -112,7 +130,9 @@ contract AllChainsInfo is LzChainSetup {
         configureEthereum();
         configureArbitrum();
         configureOptimism();
+        configureOptimismGoerli();
         configureZora();
+        configureZoraGoerli();
         configureAvalanche();
         configurePolygon();
         configureFtmTestnet();

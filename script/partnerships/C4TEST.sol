@@ -54,7 +54,7 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 //
 
-contract C4TEST is ERC721, Ownable {
+contract C4TEST is ERC721, Ownable {     //C4 by Songcamp
     struct CdMemory {
         address writerAddress;
         uint256 songChoiceId;
@@ -62,31 +62,32 @@ contract C4TEST is ERC721, Ownable {
     }
 
     mapping(uint256 => CdMemory) public readCdMemory;
-    mapping(address => mapping(uint256 => bool)) public usedNonces; //used for making sure the nonce of signed message is only used once per address for cross-chain minting
+    mapping(address => uint256) public userMintCount;
 
-    string private _baseTokenURI =
-        "https://c4-generator.vercel.app/api/cdMetadata/"; // New state variable to store the baseURI.
+    string private _baseTokenURI = "https://data.song.camp/api/cdmetadata/"; // New state variable to store the baseURI.
 
     address public mostRecentMinter;
-    address public mostCdsOwned = 0x50331e2f6e3373d517BE7B0228bcb0452DA783aa; // random address to get first comparison to work
+    address public mostCdsMinted = 0x50331e2f6e3373d517BE7B0228bcb0452DA783aa; // random address to get first comparison to work @Isaac, I had trouble getting this to work with the zero address!
     address public beneficiaryAddress;
 
     uint256 _tokenIdCounter = 1;
     uint256 public mintCount;
     uint256 public maximumMintAmount = 15000;
     uint256 public writeCount;
-    uint256 public mintPrice = 0.01 ether;
+    uint256 public mintPrice = 0.00001 ether;
     uint256 public allowListMintPrice = 0.008 ether;
 
     bool public saleEnabled = false;
 
     bytes32 public allowListMerkleRoot;
 
-    event NonceCheck(address indexed signer, uint256 nonce, bool isUsed);
     event CdMinted(uint256 tokenId, address minter); // event that is emitted whenever a Cd is minted
     event CdMemorySet(uint256 tokenId, address setter, uint256 songChoiceId); // event that is emitted whenever a Cd's data is set
 
-    constructor() Ownable() ERC721("C4TEST - v4 w multi mintwrite", "C4") {
+    constructor()
+        Ownable()
+        ERC721("Version Lock Test", "SCtest") //C4 by Songcamp , $C4
+    {
         beneficiaryAddress = msg.sender; // Set the deployer/original owner as the initial beneficiary
     }
 
@@ -107,10 +108,13 @@ contract C4TEST is ERC721, Ownable {
         );
         require(saleEnabled, "Minting is not currently enabled");
         require(
-            msg.value >= mintPrice * numberOfTokens,
-            "Insufficient funds to mint"
+            msg.value == mintPrice * numberOfTokens,
+            "msg.value is incorrect"
         );
-        require(mintCount <= maximumMintAmount, "Maximum Mint Amount Reached");
+        require(
+            mintCount + numberOfTokens <= maximumMintAmount,
+            "Maximum Mint Amount Reached"
+        );
 
         for (uint256 i = 0; i < numberOfTokens; i++) {
             uint256 tokenId = _tokenIdCounter;
@@ -119,9 +123,13 @@ contract C4TEST is ERC721, Ownable {
             emit CdMinted(tokenId, to);
             _tokenIdCounter++;
         }
+
         mostRecentMinter = to;
-        if (balanceOf(mostCdsOwned) < balanceOf(msg.sender)) {
-            mostCdsOwned = msg.sender;
+
+        userMintCount[to] += numberOfTokens;
+
+        if (userMintCount[mostCdsMinted] < userMintCount[to]) {
+            mostCdsMinted = to;
         }
     }
 
@@ -133,10 +141,14 @@ contract C4TEST is ERC721, Ownable {
         _mintTokens(to, numberOfTokens);
     }
 
-    function _ownerMint(address to, uint256 numberOfTokens) public {
+    function ownerMint(address to, uint256 numberOfTokens) public {
         require(
             numberOfTokens > 0,
             "Number of tokens to mint must be greater than 0"
+        );
+        require(
+            mintCount + numberOfTokens <= maximumMintAmount,
+            "Maximum Mint Amount Reached"
         );
 
         for (uint256 i = 0; i < numberOfTokens; i++) {
@@ -145,10 +157,7 @@ contract C4TEST is ERC721, Ownable {
             mintCount += 1;
             _tokenIdCounter++;
         }
-        mostRecentMinter = to;
-        if (balanceOf(mostCdsOwned) < balanceOf(to)) {
-            mostCdsOwned = to;
-        }
+
     }
 
     //Merkle Tree Allow List functions
@@ -195,10 +204,13 @@ contract C4TEST is ERC721, Ownable {
         );
         require(saleEnabled, "Minting is not currently enabled");
         require(
-            msg.value >= allowListMintPrice * numberOfTokens,
-            "Insufficient funds to mint"
+            msg.value == allowListMintPrice * numberOfTokens,
+            "msg.value is incorrect"
         );
-        require(mintCount <= maximumMintAmount, "Maximum Mint Amount Reached");
+        require(
+            mintCount + numberOfTokens <= maximumMintAmount,
+            "Maximum Mint Amount Reached"
+        );
 
         for (uint256 i = 0; i < numberOfTokens; i++) {
             uint256 tokenId = _tokenIdCounter;
@@ -208,8 +220,11 @@ contract C4TEST is ERC721, Ownable {
             _tokenIdCounter++;
         }
         mostRecentMinter = to;
-        if (balanceOf(mostCdsOwned) < balanceOf(msg.sender)) {
-            mostCdsOwned = msg.sender;
+
+        userMintCount[to] += numberOfTokens;
+
+        if (userMintCount[mostCdsMinted] < userMintCount[to]) {
+            mostCdsMinted = to;
         }
     }
 
@@ -281,7 +296,6 @@ contract C4TEST is ERC721, Ownable {
     function multiWriteToDiscSignature(
         uint256[] memory tokenIds,
         uint256[] memory songSelections,
-        uint256 nonce,
         bytes memory signature
     ) public {
         require(
@@ -290,21 +304,13 @@ contract C4TEST is ERC721, Ownable {
         );
 
         //Constructing the signed hash for signer address recovery
-        bytes32 hash = keccak256(
-            abi.encodePacked(tokenIds, songSelections, nonce)
-        );
+        bytes32 messageHash = keccak256(abi.encodePacked(tokenIds, songSelections));
 
         bytes32 ethSignedHash = keccak256(
-            abi.encodePacked("\x19Ethereum Signed Message:\n32", hash)
+            abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)
         );
 
         address signer = recoverSigner(ethSignedHash, signature);
-
-        emit NonceCheck(signer, nonce, usedNonces[signer][nonce]);
-
-        require(!usedNonces[signer][nonce], "Nonce already used"); //check to see if nonce has been used for this signer
-
-        usedNonces[signer][nonce] = true; // if nonce hasn't been used, set it to true to indicate it has now been used
 
         for (uint256 i = 0; i < tokenIds.length; i++) {
             uint256 tokenId = tokenIds[i];
@@ -323,13 +329,13 @@ contract C4TEST is ERC721, Ownable {
             require(!cd.written, "One or more tokens are already written.");
 
             // Update CdMemory and mark it as written
-            cd.writerAddress = msg.sender;
+            cd.writerAddress = signer;
             cd.songChoiceId = songChoiceId;
             cd.written = true;
 
             writeCount += 1;
 
-            emit CdMemorySet(tokenId, msg.sender, songChoiceId);
+            emit CdMemorySet(tokenId, signer, songChoiceId);
         }
     }
 

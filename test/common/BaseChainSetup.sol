@@ -57,7 +57,7 @@ contract BaseChainSetup is CommonBase {
         console2.log("impersonating as", _as);
         if (isForgeTest()) {
             vm.startPrank(_as);
-        } else {
+        } else if (isForkRuntime()) {
             vm.stopBroadcast();
             vm.startBroadcast(_as);
         }
