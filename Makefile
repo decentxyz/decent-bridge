@@ -72,6 +72,9 @@ mint-to:
 	AMOUNT=$(AMOUNT) \
 	forge script script/fork/MintToken.s.sol:MintToken $(COMMON_PARAMS)
 
+run-script:
+	forge script script/Scripts.s.sol:$(script) $(COMMON_PARAMS)
+
 deploy-chain:
 	forge script script/Scripts.s.sol:Deploy $(COMMON_PARAMS)
 

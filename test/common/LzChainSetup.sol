@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {Endpoint} from "./Endpoint.sol";
 import {BaseChainSetup} from "./BaseChainSetup.sol";
+import {MockEndpoint} from "./Endpoint.sol";
 
 contract LzChainSetup is BaseChainSetup {
-    mapping(string => Endpoint) lzEndpointLookup;
+    mapping(string => MockEndpoint) lzEndpointLookup;
     mapping(string => uint16) lzIdLookup;
 
     function configureLzChain(
@@ -14,7 +14,7 @@ contract LzChainSetup is BaseChainSetup {
         address lzEndpoint
     ) internal {
         // from here: https://layerzero.gitbook.io/docs/technical-reference/mainnet/supported-chain-ids
-        lzEndpointLookup[chain] = Endpoint(lzEndpoint);
+        lzEndpointLookup[chain] = MockEndpoint(lzEndpoint);
         lzIdLookup[chain] = lzId;
     }
 }

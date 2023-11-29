@@ -7,7 +7,7 @@ import {WETH} from "solmate/tokens/WETH.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {RouterDeploymentSetup} from "./RouterDeploymentSetup.sol";
 import {OpenDcntEth} from "./OpenDcntEth.sol";
-import {Endpoint} from "./Endpoint.sol";
+import {MockEndpoint} from "./Endpoint.sol";
 
 struct BridgeParams {
     string src;
@@ -121,7 +121,7 @@ contract RouterActions is RouterDeploymentSetup {
             );
 
         switchTo(params.dst);
-        Endpoint dstEndpoint = lzEndpointLookup[params.dst];
+        MockEndpoint dstEndpoint = lzEndpointLookup[params.dst];
 
         address srcDcnEth = address(dcntEthLookup[params.src]);
         address dstDcnEth = address(dcntEthLookup[params.dst]);
