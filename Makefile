@@ -62,6 +62,11 @@ add-liquidity:
 	LIQUIDITY=$(LIQUIDITY) \
 	forge script script/Scripts.s.sol:AddLiquidity $(COMMON_PARAMS)
 
+remove-liquidity:
+	$(eval LIQUIDITY=$(shell echo "scale=10; $(amount) * $(DECIMALS)" | bc | sed 's/\..*//'))
+	LIQUIDITY=$(LIQUIDITY) \
+	forge script script/Scripts.s.sol:RemoveLiquidity $(COMMON_PARAMS)
+
 bridge:
 	$(eval AMOUNT=$(shell echo "scale=10; $(amount) * $(DECIMALS)" | bc | sed 's/\..*//'))
 	AMOUNT=$(AMOUNT) \

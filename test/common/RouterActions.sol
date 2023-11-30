@@ -21,6 +21,16 @@ contract RouterActions is RouterDeploymentSetup {
     uint8 public constant MT_ETH_TRANSFER = 0;
     uint8 public constant MT_ETH_TRANSFER_WITH_PAYLOAD = 1;
 
+    function removeLiquidity(string memory chain, uint amount) public {
+        switchTo(chain);
+        DecentEthRouter router = routerLookup[chain];
+        if (gasEthLookup[chain]) {
+            router.removeLiquidityEth(amount);
+        } else {
+            router.removeLiquidityWeth(amount);
+        }
+    }
+
     function addLiquidity(string memory chain, uint amount) public {
         switchTo(chain);
         DecentEthRouter router = routerLookup[chain];
