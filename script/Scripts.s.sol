@@ -45,7 +45,6 @@ contract Common is
             setRuntime(ENV_FORK);
         }
         setupChainInfo();
-        overrideFtmTestnet();
     }
 }
 
