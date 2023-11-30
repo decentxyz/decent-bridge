@@ -5,7 +5,8 @@ libs = ["lib"]
 solc = "0.8.20"
 fs_permissions = [
     { access = "read", path = "./constants"},
-    { access = "read-write", path = "./deployments"}
+    { access = "read", path = "./out"},
+    { access = "read-write", path = "./deployments"},
 ]
 gas_reports = ["DcntEth", "DecentEthRouter"]
 
