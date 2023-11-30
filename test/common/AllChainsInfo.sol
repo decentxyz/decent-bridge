@@ -8,6 +8,7 @@ contract AllChainsInfo is LzChainSetup {
 
     function configureOptimism() private {
         configureChain("optimism", true, 10, OP_STACK_WETH);
+        chainIsSet["optimism"] = true;
         configureLzChain(
             "optimism",
             111,
@@ -15,7 +16,18 @@ contract AllChainsInfo is LzChainSetup {
         );
     }
 
+    function configureBase() private {
+        configureChain("base", true, 8453, OP_STACK_WETH);
+        configureLzChain(
+            "base",
+            184,
+            0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7
+        );
+        chainIsSet["base"] = true;
+    }
+
     function configureArbitrum() private {
+        chainIsSet["arbitrum"] = true;
         configureChain(
             "arbitrum",
             true,
@@ -30,6 +42,7 @@ contract AllChainsInfo is LzChainSetup {
     }
 
     function configureEthereum() private {
+        chainIsSet["ethereum"] = true;
         configureChain(
             "ethereum",
             true,
@@ -44,6 +57,7 @@ contract AllChainsInfo is LzChainSetup {
     }
 
     function configureSepolia() private {
+        chainIsSet["sepolia"] = true;
         configureChain(
             "sepolia",
             true,
@@ -58,6 +72,7 @@ contract AllChainsInfo is LzChainSetup {
     }
 
     function configureFtmTestnet() private {
+        chainIsSet["ftm-testnet"] = true;
         configureChain(
             "ftm-testnet",
             false,
@@ -72,6 +87,7 @@ contract AllChainsInfo is LzChainSetup {
     }
 
     function configureZora() private {
+        chainIsSet["zora"] = true;
         configureChain("zora", true, 7777777, OP_STACK_WETH);
         configureLzChain(
             "zora",
@@ -81,6 +97,7 @@ contract AllChainsInfo is LzChainSetup {
     }
 
     function configureZoraGoerli() private {
+        chainIsSet["zora-goerli"] = true;
         configureChain("zora-goerli", true, 999, OP_STACK_WETH);
         configureLzChain(
             "zora-goerli",
@@ -90,6 +107,7 @@ contract AllChainsInfo is LzChainSetup {
     }
 
     function configureOptimismGoerli() private {
+        chainIsSet["optimism-goerli"] = true;
         configureChain("optimism-goerli", true, 420, OP_STACK_WETH);
         configureLzChain(
             "optimism-goerli",
@@ -99,6 +117,7 @@ contract AllChainsInfo is LzChainSetup {
     }
 
     function configureAvalanche() private {
+        chainIsSet["avalanche"] = true;
         configureChain(
             "avalanche",
             false,
@@ -113,6 +132,7 @@ contract AllChainsInfo is LzChainSetup {
     }
 
     function configurePolygon() private {
+        chainIsSet["polygon"] = true;
         configureChain(
             "polygon",
             false,
@@ -127,15 +147,17 @@ contract AllChainsInfo is LzChainSetup {
     }
 
     function setupChainInfo() public {
+        configureSepolia();
+        configureOptimismGoerli();
+        configureZoraGoerli();
+        configureFtmTestnet();
+
         configureEthereum();
         configureArbitrum();
         configureOptimism();
-        configureOptimismGoerli();
+        configureBase();
         configureZora();
-        configureZoraGoerli();
         configureAvalanche();
         configurePolygon();
-        configureFtmTestnet();
-        configureSepolia();
     }
 }

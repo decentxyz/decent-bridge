@@ -95,6 +95,20 @@ local-deploy:
 	$(MAKE) bridge amount=0.0069 src=optimism dst=zora
 	$(MAKE) bridge amount=0.0069 src=zora dst=optimism
 
+wire-up-src-dst:
+	$(MAKE) wire-up src=$(src) dst=$(dst)
+	$(MAKE) wire-up src=$(dst) dst=$(src)
+
+deploy-and-wire:
+	$(MAKE) deploy-chain chain=$(src)
+	$(MAKE) deploy-chain chain=$(dst)
+	$(MAKE) wire-up src=$(src) dst=$(dst)
+	$(MAKE) wire-up src=$(dst) dst=$(src)
+	$(MAKE) add-liquidity chain=$(src) amount=0.8
+	$(MAKE) add-liquidity chain=$(dst) amount=0.8
+	$(MAKE) bridge amount=0.0069 src=$(src) dst=$(dst)
+	$(MAKE) bridge amount=0.0069 src=$(dst) dst=$(src)
+
 bridge-e2e:
 	$(MAKE) deploy-chain chain=$(src)
 	$(MAKE) deploy-chain chain=$(dst)

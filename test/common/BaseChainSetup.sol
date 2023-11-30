@@ -18,6 +18,7 @@ contract BaseChainSetup is CommonBase {
     mapping(string => bool) gasEthLookup;
     mapping(string => address) wethLookup;
     mapping(string => uint256) chainIdLookup;
+    mapping(string => bool) chainIsSet;
 
     function isMainnet() public returns (bool) {
         return vm.envOr("MAINNET", false) && strCompare(runtime, ENV_MAINNET);
@@ -91,12 +92,17 @@ contract BaseChainSetup is CommonBase {
             revert("no chain specified");
         }
 
+        if (!chainIsSet[chain]) {
+            revert(string.concat("no info found for chain: ", chain));
+        }
+
         if (!isForgeTest() && broadcasting) {
             vm.stopBroadcast();
             broadcasting = false;
         }
+        uint forkId = forkLookup[chain];
 
-        vm.selectFork(forkLookup[chain]);
+        vm.selectFork(forkId);
 
         if (!isForgeTest()) {
             vm.startBroadcast();
