@@ -19,3 +19,6 @@
 [submodule "lib/arshans-forge-toolkit"]
 	path = lib/arshans-forge-toolkit
 	url = https://github.com/arshankhanifar/arshans-forge-toolkit
+[submodule "lib/better-deployer"]
+	path = lib/better-deployer
+	url = https://github.com/arshankhanifar/better-deployer
