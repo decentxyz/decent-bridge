@@ -12,12 +12,40 @@ contract BetterDeployer is CommonBase {
 
     mapping(string => address) public addressBook;
     string[] public deployments;
+    string fileContent = "";
 
     constructor(string memory _path, string memory _deploymentFile) {
         deploymentsPath = _path;
         deploymentFile = (bytes(_deploymentFile).length == 0)
             ? getDefaultName()
             : _deploymentFile;
+    }
+
+    function ensureFileContentLoaded() public {
+        if (bytes(fileContent).length > 0) {
+            return;
+        }
+        string memory path = deployFilePath();
+        if (vm.isFile(path)) {
+            fileContent = vm.readFile(path);
+        }
+    }
+
+    function loadFromFile(
+        string memory name
+    ) public returns (address deployment) {
+        ensureFileContentLoaded();
+        if (bytes(fileContent).length == 0) {
+            return address(0);
+        }
+        try vm.parseJsonAddress(fileContent, string.concat(".", name)) returns (
+            address dep
+        ) {
+            deployment = dep;
+        } catch {
+            deployment = address(0);
+        }
+        recordAddress(name, deployment);
     }
 
     function getDefaultName() public returns (string memory) {
@@ -28,7 +56,29 @@ contract BetterDeployer is CommonBase {
     function get(
         string memory deploymentName
     ) public returns (address deployed) {
-        return addressBook[deploymentName];
+        deployed = addressBook[deploymentName];
+        if (deployed == address(0)) {
+            deployed = loadFromFile(deploymentName);
+        }
+        if (deployed == address(0)) {
+            revert(
+                string.concat(
+                    "No deployment found for ",
+                    deploymentName,
+                    "in file: ",
+                    deployFilePath()
+                )
+            );
+        }
+    }
+
+    function recordAddress(
+        string memory deploymentName,
+        address deployed
+    ) public {
+        vm.label(deployed, deploymentName);
+        addressBook[deploymentName] = deployed;
+        deployments.push(deploymentName);
     }
 
     function deploy(
@@ -44,9 +94,11 @@ contract BetterDeployer is CommonBase {
         if (deployed == address(0)) {
             revert(string.concat("Failed to deploy ", deploymentName));
         }
-        vm.label(deployed, deploymentName);
-        addressBook[deploymentName] = deployed;
-        deployments.push(deploymentName);
+        recordAddress(deploymentName, deployed);
+    }
+
+    function deployFilePath() public returns (string memory) {
+        return string.concat(deploymentsPath, "/", deploymentFile);
     }
 
     function dump() public {
@@ -62,10 +114,7 @@ contract BetterDeployer is CommonBase {
             addressBook[lastKey]
         );
 
-        vm.writeJson(
-            collected,
-            string.concat(deploymentsPath, "/", deploymentFile)
-        );
+        vm.writeJson(collected, deployFilePath());
     }
 }
 

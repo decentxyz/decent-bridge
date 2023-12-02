@@ -3,6 +3,7 @@ include .env
 .phony: deploy-chain
 
 COMMON_PARAMS := --broadcast -vvvv
+#COMMON_PARAMS :=  -vvvv
 
 ifeq ($(MAINNET),true)
     COMMON_PARAMS += --private-key=$(MAINNET_ACCOUNT) --verify --slow
