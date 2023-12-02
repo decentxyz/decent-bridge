@@ -16,3 +16,6 @@
 [submodule "lib/solidity-stringutils"]
 	path = lib/solidity-stringutils
 	url = https://github.com/Arachnid/solidity-stringutils
+[submodule "lib/arshans-forge-toolkit"]
+	path = lib/arshans-forge-toolkit
+	url = https://github.com/arshankhanifar/arshans-forge-toolkit
