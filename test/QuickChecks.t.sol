@@ -8,7 +8,7 @@ import {TestMultichainSetup} from "./common/TestMultichainSetup.sol";
 import {LoadDeployedContracts} from "../script/util/LoadDeployedContracts.sol";
 import {console2} from "forge-std/console2.sol";
 
-contract GasReport is Test, TestMultichainSetup, LoadDeployedContracts {
+contract QuickChecks is Test, TestMultichainSetup, LoadDeployedContracts {
     function skipTestCallRetryPayload() public {
         string memory src = "base";
         string memory dst = "zora";
@@ -25,7 +25,8 @@ contract GasReport is Test, TestMultichainSetup, LoadDeployedContracts {
     }
 
     function testCheckLiquidity() public {
-        string memory chain = "zora-goerli";
+        setPathAndFile("actual-deployments/latest", "mainnet_deployments.json");
+        string memory chain = "zora";
         loadForChain(chain);
         switchTo(chain);
         WETH w = WETH(payable(wethLookup[chain]));

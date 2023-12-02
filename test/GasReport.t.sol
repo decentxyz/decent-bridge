@@ -6,6 +6,7 @@ import {TestMultichainSetup} from "./common/TestMultichainSetup.sol";
 
 contract GasReport is Test, TestMultichainSetup {
     function testDeployAndWireUp() public {
+        setSkipFile(true);
         setRuntime("mainnet");
         string[] memory chains = new string[](3);
         chains[0] = "optimism";

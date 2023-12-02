@@ -1,0 +1,14 @@
+{
+  "arbitrum_dcntEth": "0x8F074578bcD8176CcBb2EF5D1010507695b37534",
+  "arbitrum_executor": "0x448C2CC1fcc1cE81A6dD61a401d2f10304c02F85",
+  "arbitrum_router": "0x8D00F9b68eE5D6CDBfaB2BdC0360A4CA6aAC1155",
+  "ethereum_dcntEth": "0xFdCf8AbC1ecE14536eCBCc4411f08F7Fd17c459a",
+  "ethereum_executor": "0x5FcAd494a034251968Fbdb72C43712791a06368F",
+  "ethereum_router": "0x2b44A57068C12689CC7Bea7c25a27faAe170E460",
+  "optimism_dcntEth": "0x735c4C37107973594b08500687811d065DF69652",
+  "optimism_executor": "0x85c3aaD9a21a27D78815989D689897582342391b",
+  "optimism_router": "0x0607f559FD0b6d5a2586E71eE0a9fa8dd03baA11",
+  "zora_dcntEth": "0x3922a1E8d769B660717040E06d0015A0C3a64F76",
+  "zora_executor": "0x719e9E411c08038168eDCd25c19e224dEA1603c2",
+  "zora_router": "0x6144D220Caaf900Dd7F211a97FcE326854E13414"
+}

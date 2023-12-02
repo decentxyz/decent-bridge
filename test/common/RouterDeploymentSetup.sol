@@ -81,6 +81,9 @@ contract RouterDeploymentSetup is LzChainSetup, ChainDeployer {
     function deployAndRegister(string memory chain) public {
         deployRouterAndDecentEth(chain);
         registerDecentEth(chain);
+        if (!isForgeTest()) {
+            dump();
+        }
     }
 
     function wireUpSrcToDst(string memory src, string memory dst) public {

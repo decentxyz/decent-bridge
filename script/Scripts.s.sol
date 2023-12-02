@@ -45,6 +45,16 @@ contract Common is
             setRuntime(ENV_FORK);
         }
         loadAllChainInfo();
+
+        string memory depFile = "deployments.json";
+        if (isMainnet()) {
+            depFile = string.concat("mainnet_", depFile);
+        } else if (isTestnet()) {
+            depFile = string.concat("testnet_", depFile);
+        } else {
+            depFile = string.concat("forknet_", depFile);
+        }
+        setPathAndFile("deployments", depFile);
     }
 }
 

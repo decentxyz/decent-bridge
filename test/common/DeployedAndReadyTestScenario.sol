@@ -44,6 +44,7 @@ contract DeployedAndReadyTestScenario is
             loadForChain(srcChain);
             loadForChain(dstChain);
         } else {
+            setSkipFile(true);
             deploySrcDst();
         }
         addLiquidityMintWethToSelfIfNeeded(srcChain, AVAILABLE_LIQUIDITY);
