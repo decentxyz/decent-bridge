@@ -10,7 +10,12 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 import {DecentEthRouter} from "src/DecentEthRouter.sol";
 import {DcntEth} from "src/DcntEth.sol";
 import {CommonRouterSetup} from "test/util/CommonRouterSetup.sol";
-import {BridgedWeth} from "./DecentWethRouter.t.sol";
+
+contract BridgedWeth is ERC20("Wrapped Ether", "WETH", 18) {
+    function mint(address to, uint amount) external {
+        _mint(to, amount);
+    }
+}
 
 contract DecentEthRouterNonEthChainTest is CommonRouterSetup {
     BridgedWeth weth;

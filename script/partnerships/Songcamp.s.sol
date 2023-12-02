@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 import {Script} from "forge-std/Script.sol";
-import {AllChainsInfo} from "../../test/common/AllChainsInfo.sol";
+import {LoadAllChainInfo} from "arshans-forge-toolkit/LoadAllChainInfo.sol";
 import "./C4TEST.sol";
 
-contract Songcamp is Script, AllChainsInfo, C4TEST {
+contract Songcamp is Script, LoadAllChainInfo, C4TEST {
     function setUp() public {
         if (vm.envOr("TESTNET", false)) {
             setRuntime(ENV_TESTNET);
@@ -14,7 +14,7 @@ contract Songcamp is Script, AllChainsInfo, C4TEST {
         } else {
             setRuntime(ENV_FORK);
         }
-        setupChainInfo();
+        loadAllChainInfo();
     }
 
     function run() public {

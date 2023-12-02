@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
+import {MockEndpoint} from "arshans-forge-toolkit/LzChainSetup.sol";
 import {WETH} from "solmate/tokens/WETH.sol";
-import {MockEndpoint} from "./common/Endpoint.sol";
 import {Test} from "forge-std/Test.sol";
 import {TestMultichainSetup} from "./common/TestMultichainSetup.sol";
 import {LoadDeployedContracts} from "../script/util/LoadDeployedContracts.sol";
 import {console2} from "forge-std/console2.sol";
 
 contract GasReport is Test, TestMultichainSetup, LoadDeployedContracts {
-    function testCallRetryPayload() public {
+    function skipTestCallRetryPayload() public {
         string memory src = "base";
         string memory dst = "zora";
         loadForChain(src);

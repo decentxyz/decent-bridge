@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {OpenDcntEth} from "../../test/common/OpenDcntEth.sol";
 import {DecentEthRouter} from "../../src/DecentEthRouter.sol";
-import {LzChainSetup} from "../../test/common/LzChainSetup.sol";
+import {LzChainSetup} from "arshans-forge-toolkit/LzChainSetup.sol";
 import {RouterDeploymentSetup} from "../../test/common/RouterDeploymentSetup.sol";
 
 contract LoadDeployedContracts is LzChainSetup, RouterDeploymentSetup {

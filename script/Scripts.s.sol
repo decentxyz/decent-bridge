@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+import {MockEndpoint} from "arshans-forge-toolkit/LzChainSetup.sol";
 import {DecentEthRouter} from "../src/DecentEthRouter.sol";
 import {WETH} from "solmate/tokens/WETH.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
@@ -11,9 +12,8 @@ import {BroadcastMultichainSetup} from "./util/BroadcastMultichainSetup.sol";
 import {ParseChainsFromEnvVars} from "./util/ParseChainsFromEnvVars.sol";
 import {LoadDeployedContracts} from "./util/LoadDeployedContracts.sol";
 import {MultichainDeployer} from "../test/common/MultichainDeployer.sol";
-import {AllChainsInfo} from "../test/common/AllChainsInfo.sol";
+import {LoadAllChainInfo} from "arshans-forge-toolkit/LoadAllChainInfo.sol";
 import {RouterActions} from "../test/common/RouterActions.sol";
-import {MockEndpoint} from "../test/common/Endpoint.sol";
 
 contract FakeWeth is ERC20, Owned {
     constructor() ERC20("Wrapped ETH", "WETH", 18) Owned(msg.sender) {}
@@ -26,7 +26,7 @@ contract FakeWeth is ERC20, Owned {
 contract Common is
     Script,
     MultichainDeployer,
-    AllChainsInfo,
+    LoadAllChainInfo,
     ParseChainsFromEnvVars,
     LoadDeployedContracts,
     RouterActions
@@ -44,7 +44,7 @@ contract Common is
         } else {
             setRuntime(ENV_FORK);
         }
-        setupChainInfo();
+        loadAllChainInfo();
     }
 }
 

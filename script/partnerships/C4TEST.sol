@@ -54,7 +54,10 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 //
 
-contract C4TEST is ERC721, Ownable {     //C4 by Songcamp
+contract C4TEST is
+    ERC721,
+    Ownable //C4 by Songcamp
+{
     struct CdMemory {
         address writerAddress;
         uint256 songChoiceId;
@@ -157,7 +160,6 @@ contract C4TEST is ERC721, Ownable {     //C4 by Songcamp
             mintCount += 1;
             _tokenIdCounter++;
         }
-
     }
 
     //Merkle Tree Allow List functions
@@ -304,7 +306,9 @@ contract C4TEST is ERC721, Ownable {     //C4 by Songcamp
         );
 
         //Constructing the signed hash for signer address recovery
-        bytes32 messageHash = keccak256(abi.encodePacked(tokenIds, songSelections));
+        bytes32 messageHash = keccak256(
+            abi.encodePacked(tokenIds, songSelections)
+        );
 
         bytes32 ethSignedHash = keccak256(
             abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)

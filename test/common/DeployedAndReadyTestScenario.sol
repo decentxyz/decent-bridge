@@ -2,17 +2,17 @@
 pragma solidity ^0.8.0;
 
 import {AliceAndBobScenario} from "./AliceAndBobScenario.sol";
-import {AssertionHelpers} from "./AssertionHelpers.sol";
-import {AllChainsInfo} from "./AllChainsInfo.sol";
 import {console2} from "forge-std/console2.sol";
-import {WethMintHelper} from "./WethMintHelper.sol";
+import {WethMintHelper} from "arshans-forge-toolkit/WethMintHelper.sol";
 import {CoolCatScenario} from "./CoolCatScenario.sol";
 import {LoadDeployedContracts} from "../../script/util/LoadDeployedContracts.sol";
+import {LoadAllChainInfo} from "arshans-forge-toolkit/LoadAllChainInfo.sol";
+import {BalanceAssertions} from "arshans-forge-toolkit/BalanceAssertions.sol";
 
 contract DeployedAndReadyTestScenario is
     AliceAndBobScenario,
-    AssertionHelpers,
-    AllChainsInfo,
+    BalanceAssertions,
+    LoadAllChainInfo,
     WethMintHelper,
     CoolCatScenario,
     LoadDeployedContracts
@@ -38,7 +38,7 @@ contract DeployedAndReadyTestScenario is
         if (bytes(dstChain).length == 0) {
             revert("dstChain not set");
         }
-        setupChainInfo();
+        loadAllChainInfo();
         setupWhaleInfo();
         if (load) {
             loadForChain(srcChain);

@@ -3,7 +3,6 @@ include .env
 .phony: deploy-chain
 
 COMMON_PARAMS := --broadcast -vvvv
-#COMMON_PARAMS :=  -vvvv
 
 ifeq ($(MAINNET),true)
     COMMON_PARAMS += --private-key=$(MAINNET_ACCOUNT) --verify --slow
@@ -72,11 +71,6 @@ bridge:
 	$(eval AMOUNT=$(shell echo "scale=10; $(amount) * $(DECIMALS)" | bc | sed 's/\..*//'))
 	AMOUNT=$(AMOUNT) \
 	forge script script/Scripts.s.sol:Bridge $(COMMON_PARAMS)
-
-mint-to:
-	$(eval AMOUNT=$(shell echo "scale=10; $(amount) * $(DECIMALS)" | bc | sed 's/\..*//'))
-	AMOUNT=$(AMOUNT) \
-	forge script script/fork/MintToken.s.sol:MintToken $(COMMON_PARAMS)
 
 run-script:
 	forge script script/Scripts.s.sol:$(script) $(COMMON_PARAMS)

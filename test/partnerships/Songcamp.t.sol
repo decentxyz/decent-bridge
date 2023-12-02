@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {BaseChainSetup} from "../common/BaseChainSetup.sol";
+import {BaseChainSetup} from "arshans-forge-toolkit/BaseChainSetup.sol";
 import {console2} from "forge-std/console2.sol";
 import {Test} from "forge-std/Test.sol";
 import {C4TEST} from "../../script/partnerships/C4TEST.sol";

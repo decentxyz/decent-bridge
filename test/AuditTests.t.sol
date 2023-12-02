@@ -10,7 +10,6 @@ import {EthChain2EthChainScenario} from "./common/EthChain2EthChainScenario.sol"
 contract AuditTests is EthChain2EthChainScenario {
     function testArbitraryCallDataShouldNotBeAbleToDrainWeth() public {
         dealTo(srcChain, alice, 0.1 ether);
-        DecentEthRouter router = routerLookup[srcChain];
         uint64 drainGas = 5e5;
 
         bytes memory payload = abi.encodeCall(

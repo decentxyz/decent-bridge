@@ -5,41 +5,69 @@ import {Executor} from "../../src/Executor.sol";
 import {OpenDcntEth} from "./OpenDcntEth.sol";
 import {DecentEthRouter} from "../../src/DecentEthRouter.sol";
 import {DcntEth} from "../../src/DcntEth.sol";
-import {LzChainSetup} from "./LzChainSetup.sol";
-import {DeploymentRecorder} from "./DeploymentRecorder.sol";
 import {console2} from "forge-std/console2.sol";
+import {LzChainSetup} from "arshans-forge-toolkit/LzChainSetup.sol";
+import {ChainDeployer} from "better-deployer/ChainDeployer.sol";
 
-contract RouterDeploymentSetup is LzChainSetup, DeploymentRecorder {
+contract RouterDeploymentSetup is LzChainSetup, ChainDeployer {
     mapping(string => DecentEthRouter) routerLookup;
     mapping(string => DcntEth) dcntEthLookup;
     uint MIN_DST_GAS = 100000;
 
     function deployRouterAndDecentEth(string memory chain) public {
-        string memory chainRecordKey = startRecording(chain);
         switchTo(chain);
-        Executor executor = new Executor(
-            payable(wethLookup[chain]),
-            gasEthLookup[chain]
+
+        Executor executor = Executor(
+            payable(
+                deployChain(
+                    chain,
+                    "executor",
+                    "Executor.sol:Executor",
+                    abi.encode(payable(wethLookup[chain]), gasEthLookup[chain])
+                )
+            )
         );
-        DecentEthRouter router = new DecentEthRouter(
-            payable(wethLookup[chain]),
-            gasEthLookup[chain],
-            address(executor)
+
+        DecentEthRouter router = DecentEthRouter(
+            payable(
+                deployChain(
+                    chain,
+                    "router",
+                    "DecentEthRouter.sol:DecentEthRouter",
+                    abi.encode(
+                        payable(wethLookup[chain]),
+                        gasEthLookup[chain],
+                        address(executor)
+                    )
+                )
+            )
         );
+
         executor.transferOwnership(address(router));
-        vm.serializeAddress(chainRecordKey, "router", address(router));
 
         routerLookup[chain] = router;
         DcntEth dcntEth;
         address lzEndpoint = address(lzEndpointLookup[chain]);
         if (isForgeTest()) {
-            dcntEth = new OpenDcntEth(lzEndpoint);
+            dcntEth = OpenDcntEth(
+                deployChain(
+                    chain,
+                    "dcntEth",
+                    "OpenDcntEth.sol:OpenDcntEth",
+                    abi.encode(lzEndpoint)
+                )
+            );
         } else {
-            dcntEth = new DcntEth(lzEndpoint);
+            dcntEth = DcntEth(
+                deployChain(
+                    chain,
+                    "dcntEth",
+                    "DcntEth.sol:DcntEth",
+                    abi.encode(lzEndpoint)
+                )
+            );
         }
         dcntEthLookup[chain] = dcntEth;
-        vm.serializeAddress(chainRecordKey, "decentEth", address(dcntEth));
-        dumpChainDeployments(chain);
     }
 
     function registerDecentEth(string memory chain) public {

@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
+import {MockEndpoint} from "arshans-forge-toolkit/LzChainSetup.sol";
 import {DecentEthRouter} from "../../src/DecentEthRouter.sol";
-
 import {WETH} from "solmate/tokens/WETH.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {RouterDeploymentSetup} from "./RouterDeploymentSetup.sol";
 import {OpenDcntEth} from "./OpenDcntEth.sol";
-import {MockEndpoint} from "./Endpoint.sol";
 
 struct BridgeParams {
     string src;
@@ -129,48 +128,15 @@ contract RouterActions is RouterDeploymentSetup {
                 oftPayload, // will have the recipients address
                 dstGasForCall
             );
-
-        switchTo(params.dst);
-        MockEndpoint dstEndpoint = lzEndpointLookup[params.dst];
-
         address srcDcnEth = address(dcntEthLookup[params.src]);
         address dstDcnEth = address(dcntEthLookup[params.dst]);
-
-        uint64 nonce = dstEndpoint.getInboundNonce(
-            lzIdLookup[params.src],
-            abi.encode(srcDcnEth, dstDcnEth)
+        receiveLzMessage(
+            params.src,
+            params.dst,
+            srcDcnEth,
+            dstDcnEth,
+            dstGasForCall,
+            lzPayload
         );
-
-        address defaultLibAddress = dstEndpoint.defaultReceiveLibraryAddress();
-
-        startImpersonating(defaultLibAddress);
-        dstEndpoint.receivePayload(
-            lzIdLookup[params.src], // src chain id
-            abi.encodePacked(srcDcnEth, dstDcnEth), // src address
-            dstDcnEth, // dst address
-            nonce + 1, // nonce
-            dstGasForCall, // gas limit
-            lzPayload // payload
-        );
-
-        stopImpersonating();
     }
-
-    // test scenarios
-
-    // attemptBridgeEth // deliver eth is true
-    //      attemptBridgeEth to eth chain ?  should deliver eth
-    //      attemptBridgeEth to weth chain ?  should deliver weth
-
-    // attemptBridgeWeth // deliver eth is false
-    //      attemptBridgeWeth to eth chain ?  should deliver weth
-    //      attemptBridgeWeth to weth chain ?  should deliver weth
-
-    // attemptBridgeEthWithPayload // deliver
-    //      attemptBridgeEthWithPayload to eth chain? should deliver eth & call
-    //      attemptBridgeEthWithPayload to weth chain? should deliver weth & call
-
-    // attemptBridgeWithPayload
-    //      attemptBridgeWithPayload to eth chain? should deliver weth & call
-    //      attemptBridgeWithPayload to weth chain? should deliver weth & call
 }

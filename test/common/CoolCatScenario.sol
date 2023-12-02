@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {BaseChainSetup} from "./BaseChainSetup.sol";
+import {BaseChainSetup} from "arshans-forge-toolkit/BaseChainSetup.sol";
 import {SrcDstChainScenario} from "./SrcDstChainScenario.sol";
 import {CoolCat} from "./CoolCat.sol";
 
