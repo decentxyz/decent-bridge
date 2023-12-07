@@ -29,3 +29,8 @@ glue.pid
 glueConfig.json
 runningForks.json
 deployments/*forknet_deployments.json
+
+# hardhat stuff
+dist/
+decent.xyz-hardhat-decent-bridge-*tgz
+
