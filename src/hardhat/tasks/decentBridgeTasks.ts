@@ -10,7 +10,7 @@ import {
 } from "@decent.xyz/box-common";
 import { exec } from "shelljs";
 import { Address, defineChain, formatUnits, http, parseEther } from "viem";
-import { aliasLookup } from "../src/hardhat/constants";
+import { aliasLookup } from "../constants";
 
 const chains = [
   ChainId.ETHEREUM,

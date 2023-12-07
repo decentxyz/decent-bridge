@@ -8,5 +8,7 @@
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
-  "include": ["./hardhat.config.ts", "tasks"]
+  "include": ["./hardhat.config.ts",
+    "src/hardhat/tasks"
+  ]
 }

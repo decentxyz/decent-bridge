@@ -1,6 +1,6 @@
 import { configDotenv } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
-import "./tasks";
+import "./src/hardhat";
 
 configDotenv();
 export const config: HardhatUserConfig = {};

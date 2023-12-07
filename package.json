@@ -7,7 +7,7 @@
     "compile": "forge-deploy gen-deployer && forge build",
     "deploy": "forge script script/Counter.s.sol --rpc-url $RPC_URL --broadcast --private-key $DEPLOYER_PRIVATE_KEY -v && forge-deploy sync;",
     "task": "hardhat",
-    "build": "tsup src/index.ts --format cjs --clean --minify --metafile",
+    "build": "tsup src/hardhat/index.ts --format cjs --clean --minify --metafile",
     "publish:package": "pnpm run build && pnpm pack && pnpm publish --access public"
   },
   "keywords": [],
