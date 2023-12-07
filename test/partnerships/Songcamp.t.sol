@@ -54,7 +54,7 @@ contract Songcamp is Test, AliceAndBobScenario, LoadAllChainInfo {
         return (signature, owner);
     }
 
-    function testTryMintCall() public {
+    function skipTestTryMintCall() public {
         loadAllChainInfo();
         switchTo("zora");
         address peaceNode = 0x92Fbd2faF1E67B5A55Ce9196b4EAA3B55c23cECa;

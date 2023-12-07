@@ -28,5 +28,4 @@ broadcast
 glue.pid
 glueConfig.json
 runningForks.json
-
-
+deployments/*forknet_deployments.json
