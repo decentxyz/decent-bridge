@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
 import "@nomicfoundation/hardhat-viem";
-import "@arshankhanifar/houndry-toolkit";
+import "@decent.xyz/houndry-toolkit";
 import {
   ChainId,
   getforkPort,
