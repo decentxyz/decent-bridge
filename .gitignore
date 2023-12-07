@@ -24,4 +24,9 @@ broadcast
 /deployments/localhost
 /deployments/31337
 
+# forknet stuff
+glue.pid
+glueConfig.json
+runningForks.json
+
 

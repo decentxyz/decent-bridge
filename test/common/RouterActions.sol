@@ -7,6 +7,7 @@ import {WETH} from "solmate/tokens/WETH.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {RouterDeploymentSetup} from "./RouterDeploymentSetup.sol";
 import {OpenDcntEth} from "./OpenDcntEth.sol";
+import {console2} from "forge-std/console2.sol";
 
 struct BridgeParams {
     string src;

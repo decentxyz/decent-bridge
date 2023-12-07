@@ -100,7 +100,7 @@ contract RetryLz is Common {
 contract Bridge is Common {
     function run() public {
         uint64 gas = 120e3;
-        uint amount = vm.envUint("AMOUNT");
+        uint amount = vm.envUint("bridge_amount");
         string memory src = vm.envString("src");
         string memory dst = vm.envString("dst");
         loadForChain(src);
@@ -137,7 +137,7 @@ contract Bridge is Common {
 contract AddLiquidity is Common {
     function run() public {
         string memory chain = vm.envString("chain");
-        uint amount = vm.envUint("LIQUIDITY");
+        uint amount = vm.envUint("liquidity");
         loadForChain(chain);
         addLiquidity(chain, amount);
     }
@@ -146,7 +146,7 @@ contract AddLiquidity is Common {
 contract RemoveLiquidity is Common {
     function run() public {
         string memory chain = vm.envString("chain");
-        uint amount = vm.envUint("LIQUIDITY");
+        uint amount = vm.envUint("liquidity");
         loadForChain(chain);
         removeLiquidity(chain, amount);
     }

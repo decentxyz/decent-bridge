@@ -58,18 +58,18 @@ start-forknet:
 DECIMALS := 1000000000000000000 # for convenience
 
 add-liquidity:
-	$(eval LIQUIDITY=$(shell echo "scale=10; $(amount) * $(DECIMALS)" | bc | sed 's/\..*//'))
-	LIQUIDITY=$(LIQUIDITY) \
+	$(eval liquidity=$(shell echo "scale=10; $(amount) * $(DECIMALS)" | bc | sed 's/\..*//'))
+	liquidity=$(liquidity) \
 	forge script script/Scripts.s.sol:AddLiquidity $(COMMON_PARAMS)
 
 remove-liquidity:
-	$(eval LIQUIDITY=$(shell echo "scale=10; $(amount) * $(DECIMALS)" | bc | sed 's/\..*//'))
-	LIQUIDITY=$(LIQUIDITY) \
+	$(eval liquidity=$(shell echo "scale=10; $(amount) * $(DECIMALS)" | bc | sed 's/\..*//'))
+	liquidity=$(liquidity) \
 	forge script script/Scripts.s.sol:RemoveLiquidity $(COMMON_PARAMS)
 
 bridge:
-	$(eval AMOUNT=$(shell echo "scale=10; $(amount) * $(DECIMALS)" | bc | sed 's/\..*//'))
-	AMOUNT=$(AMOUNT) \
+	$(eval bridge_amount=$(shell echo "scale=10; $(amount) * $(DECIMALS)" | bc | sed 's/\..*//'))
+	bridge_amount=$(bridge_amount) \
 	forge script script/Scripts.s.sol:Bridge $(COMMON_PARAMS)
 
 run-script:
