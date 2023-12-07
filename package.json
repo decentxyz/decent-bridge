@@ -1,6 +1,6 @@
 {
   "name": "@decent.xyz/hardhat-decent-bridge",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -20,8 +20,10 @@
     "prettier-plugin-solidity": "^1.1.3",
     "tsup": "^8.0.1"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@decent.xyz/houndry-toolkit": "^1.0.18",
+  },
+  "dependencies": {
     "@decent.xyz/box-common": "^1.0.15",
     "@nomicfoundation/hardhat-viem": "^1.0.1",
     "@types/shelljs": "^0.8.15",
