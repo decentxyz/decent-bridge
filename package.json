@@ -20,11 +20,9 @@
     "prettier-plugin-solidity": "^1.1.3",
     "tsup": "^8.0.1"
   },
-  "peerDependencies": {
-    "@decent.xyz/houndry-toolkit": "^1.0.18"
-  },
   "dependencies": {
     "@decent.xyz/box-common": "^1.0.15",
+    "@decent.xyz/houndry-toolkit": "file:/Users/arshankhanifar/decentxyz/onchain-integrations/lib/decent-bridge/decent.xyz-houndry-toolkit-1.0.21.tgz",
     "@nomicfoundation/hardhat-viem": "^1.0.1",
     "@types/shelljs": "^0.8.15",
     "dotenv": "^16.3.1",

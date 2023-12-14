@@ -34,3 +34,5 @@ deployments/*forknet_deployments.json
 dist/
 decent.xyz-hardhat-decent-bridge-*tgz
 
+.DS_Store
+

@@ -7,6 +7,7 @@ import {
   getForkRpc,
   getWagmiChain,
   Lookup,
+  sleep,
 } from "@decent.xyz/box-common";
 import { exec } from "shelljs";
 import { Address, defineChain, formatUnits, http, parseEther } from "viem";
@@ -54,6 +55,7 @@ task("start-forknets", async (action, hre) => {
   };
 
   await Promise.all(chains.map(_start));
+  await sleep(1000);
   await hre.run("start-glue");
 });
 
@@ -115,6 +117,13 @@ export const runtimeParam = (targetTask: TaskType): TaskType =>
     "runtime",
     "runtime of deployment: mainnet, testnet, or forknet",
     Runtime.FORKNET,
+  );
+
+export const chainsParam = (targetTask: TaskType): TaskType =>
+  targetTask.addOptionalParam<string>(
+    "chains",
+    "comma-separated list of chains to do the setup with",
+    chains.map((chain) => aliasLookup[chain]).join(","),
   );
 
 export const srcDstParam = (targetTask: TaskType): TaskType =>
@@ -186,7 +195,7 @@ addParams(
 );
 
 addParams(
-  [runtimeParam],
+  [runtimeParam, chainsParam],
   task<{
     chains: string;
     runtime: Runtime;
@@ -215,17 +224,11 @@ addParams(
 
     await _deployAndAddLiquidity();
     await _wireUp();
-  })
-    .addOptionalParam<string>(
-      "chains",
-      "comma-separated list of chains to do the setup with",
-      chains.map((chain) => aliasLookup[chain]).join(","),
-    )
-    .addOptionalParam<string>(
-      "amount",
-      "amount of liquidity (in eth) to add to those chains",
-      "100",
-    ),
+  }).addOptionalParam<string>(
+    "amount",
+    "amount of liquidity (in eth) to add to those chains",
+    "100",
+  ),
 );
 
 addParams(
