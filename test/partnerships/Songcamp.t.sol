@@ -58,7 +58,7 @@ contract Songcamp is Test, AliceAndBobScenario, LoadAllChainInfo {
         loadAllChainInfo();
         switchTo("zora");
         address peaceNode = 0x92Fbd2faF1E67B5A55Ce9196b4EAA3B55c23cECa;
-        C4TEST nft = C4TEST(0x38898cAdB5241121620A81e7BcA47eaB8a87402A);
+        nft = C4TEST(0x38898cAdB5241121620A81e7BcA47eaB8a87402A);
         startImpersonating(peaceNode);
         console2.log("balance of them", peaceNode.balance);
         nft.multiMint{value: 1 ether}(100, peaceNode);
