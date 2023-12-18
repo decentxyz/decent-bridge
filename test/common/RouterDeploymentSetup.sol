@@ -21,7 +21,7 @@ contract RouterDeploymentSetup is LzChainSetup, ChainDeployer {
             payable(
                 deployChain(
                     chain,
-                    "executor",
+                    "decentEthRouterExecutor",
                     "Executor.sol:Executor",
                     abi.encode(payable(wethLookup[chain]), gasEthLookup[chain])
                 )
@@ -32,7 +32,7 @@ contract RouterDeploymentSetup is LzChainSetup, ChainDeployer {
             payable(
                 deployChain(
                     chain,
-                    "router",
+                    "decentEthRouter",
                     "DecentEthRouter.sol:DecentEthRouter",
                     abi.encode(
                         payable(wethLookup[chain]),
