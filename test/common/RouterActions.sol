@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {MockEndpoint} from "arshans-forge-toolkit/LzChainSetup.sol";
+import {WethMintHelper} from "arshans-forge-toolkit/WethMintHelper.sol";
 import {DecentEthRouter} from "../../src/DecentEthRouter.sol";
 import {WETH} from "solmate/tokens/WETH.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
@@ -17,7 +18,7 @@ struct BridgeParams {
     uint amount;
 }
 
-contract RouterActions is RouterDeploymentSetup {
+contract RouterActions is RouterDeploymentSetup, WethMintHelper {
     uint8 public constant MT_ETH_TRANSFER = 0;
     uint8 public constant MT_ETH_TRANSFER_WITH_PAYLOAD = 1;
 
@@ -37,7 +38,8 @@ contract RouterActions is RouterDeploymentSetup {
         if (gasEthLookup[chain]) {
             router.addLiquidityEth{value: amount}();
         } else {
-            ERC20 weth = ERC20(wethLookup[chain]);
+            ERC20 weth = ERC20(getWeth(chain));
+            mintWethTo(chain, address(this), amount);
             weth.approve(address(router), amount);
             router.addLiquidityWeth(amount);
         }
