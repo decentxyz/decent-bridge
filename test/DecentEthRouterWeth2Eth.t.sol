@@ -10,8 +10,7 @@ import {BalanceAssertions} from "arshans-forge-toolkit/BalanceAssertions.sol";
 
 contract SourceChainWethCommonHelpers is
     AliceAndBobScenario,
-    BalanceAssertions,
-    WethMintHelper
+    BalanceAssertions
 {
     uint aliceNonEthBalance = 1 ether; //
     uint aliceInitialWethBalance = 10 ether;
