@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {console2} from "forge-std/console2.sol";
-import {LoadDeployedContracts} from "../../script/util/LoadDeployedContracts.sol";
+import {LoadDecentBridgeDeployedContracts} from "../../script/util/LoadDecentBridgeDeployedContracts.sol";
 import {BalanceAssertions} from "arshans-forge-toolkit/BalanceAssertions.sol";
 import {AliceAndBobScenario} from "./AliceAndBobScenario.sol";
 import {CoolCatScenario} from "./CoolCatScenario.sol";
@@ -10,7 +10,7 @@ import {CoolCatScenario} from "./CoolCatScenario.sol";
 contract DeployedAndReadyTestScenario is
     CoolCatScenario,
     AliceAndBobScenario,
-    LoadDeployedContracts,
+LoadDecentBridgeDeployedContracts,
     BalanceAssertions
 {
     bool load = false;
@@ -37,8 +37,8 @@ contract DeployedAndReadyTestScenario is
         loadAllChainInfo();
         setupWethHelperInfo();
         if (load) {
-            loadForChain(srcChain);
-            loadForChain(dstChain);
+            loadDecentBridgeContractsForChain(srcChain);
+            loadDecentBridgeContractsForChain(dstChain);
         } else {
             setSkipFile(true);
             deploySrcDst();

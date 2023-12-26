@@ -1,5 +1,5 @@
 {
-  "decentEth": "0x4DB4ea27eA4b713E766bC13296A90bb42C5438D0",
+  "zora_DcntEth": "0x4DB4ea27eA4b713E766bC13296A90bb42C5438D0",
   "done": true,
-  "router": "0x57beDF28C3CB3F019f40F330A2a2B0e0116AA0c2"
+  "zora_DecentEthRouter": "0x57beDF28C3CB3F019f40F330A2a2B0e0116AA0c2"
 }

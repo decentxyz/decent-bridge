@@ -1,12 +1,12 @@
 {
-  "zora_dcntEth": "0xd21060559c9beb54fC07aFd6151aDf6cFCDDCAeB",
-  "zora_router": "0x4f559F30f5eB88D635FDe1548C4267DB8FaB0351",
-  "ethereum_dcntEth": "0x4B3876a8E3Bb072787F51c39be83d7cB0b4e6388",
-  "ethereum_router": "0xcA010aE462E619d3C2B00884800452649B18B5C3",
-  "arbitrum_dcntEth": "0x8450e1A0DebF76fd211A03c0c7F4DdbB1eEF8A85",
-  "arbitrum_router": "0x17479B712A1FE1FFaeaf155379DE3ad1440fA99e",
-  "optimism_dcntEth": "0x50EEf481cae4250d252Ae577A09bF514f224C6C4",
-  "optimism_router": "0xBb2180ebd78ce97360503434eD37fcf4a1Df61c3",
-  "base_dcntEth": "0x4B3876a8E3Bb072787F51c39be83d7cB0b4e6388",
-  "base_router": "0xcA010aE462E619d3C2B00884800452649B18B5C3"
+  "zora_DcntEth": "0xd21060559c9beb54fC07aFd6151aDf6cFCDDCAeB",
+  "zora_DecentEthRouter": "0x4f559F30f5eB88D635FDe1548C4267DB8FaB0351",
+  "ethereum_DcntEth": "0x4B3876a8E3Bb072787F51c39be83d7cB0b4e6388",
+  "ethereum_DecentEthRouter": "0xcA010aE462E619d3C2B00884800452649B18B5C3",
+  "arbitrum_DcntEth": "0x8450e1A0DebF76fd211A03c0c7F4DdbB1eEF8A85",
+  "arbitrum_DecentEthRouter": "0x17479B712A1FE1FFaeaf155379DE3ad1440fA99e",
+  "optimism_DcntEth": "0x50EEf481cae4250d252Ae577A09bF514f224C6C4",
+  "optimism_DecentEthRouter": "0xBb2180ebd78ce97360503434eD37fcf4a1Df61c3",
+  "base_DcntEth": "0x4B3876a8E3Bb072787F51c39be83d7cB0b4e6388",
+  "base_DecentEthRouter": "0xcA010aE462E619d3C2B00884800452649B18B5C3"
 }

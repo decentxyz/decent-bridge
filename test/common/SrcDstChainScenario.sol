@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {RouterDeploymentSetup} from "./RouterDeploymentSetup.sol";
+import {DecentBridgeDeploymentSetup} from "./DecentBridgeDeploymentSetup.sol";
 
-contract SrcDstChainScenario is RouterDeploymentSetup {
+contract SrcDstChainScenario is DecentBridgeDeploymentSetup {
     string srcChain;
     string dstChain;
 
     function deploySrcDst() public {
-        deployRouterAndDecentEth(srcChain);
+        deployDecentBridgeRouterAndDecentEth(srcChain);
         registerDecentEth(srcChain);
-        deployRouterAndDecentEth(dstChain);
+        deployDecentBridgeRouterAndDecentEth(dstChain);
         registerDecentEth(dstChain);
         wireUp(srcChain, dstChain);
     }

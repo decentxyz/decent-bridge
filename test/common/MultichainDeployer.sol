@@ -2,9 +2,9 @@
 pragma solidity ^0.8.0;
 
 import {console2} from "forge-std/console2.sol";
-import {RouterDeploymentSetup} from "./RouterDeploymentSetup.sol";
+import {DecentBridgeDeploymentSetup} from "./DecentBridgeDeploymentSetup.sol";
 
-contract MultichainDeployer is RouterDeploymentSetup {
+contract MultichainDeployer is DecentBridgeDeploymentSetup {
     function wireUp(string[] memory chains) internal {
         for (uint i = 0; i < chains.length; i++) {
             string memory srcChain = chains[i];
@@ -18,7 +18,7 @@ contract MultichainDeployer is RouterDeploymentSetup {
     function deploy(string[] memory chains) internal {
         for (uint i = 0; i < chains.length; i++) {
             string memory chain = chains[i];
-            deployRouterAndDecentEth(chain);
+            deployDecentBridgeRouterAndDecentEth(chain);
             registerDecentEth(chain);
         }
     }

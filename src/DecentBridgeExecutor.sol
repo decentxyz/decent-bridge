@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {WETH} from "solmate/tokens/WETH.sol";
 import {Owned} from "solmate/auth/Owned.sol";
 
-contract Executor is Owned {
+contract DecentBridgeExecutor is Owned {
     WETH weth;
     bool public gasCurrencyIsEth; // for chains that use ETH as gas currency
 

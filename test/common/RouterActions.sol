@@ -6,7 +6,7 @@ import {WethMintHelper} from "arshans-forge-toolkit/WethMintHelper.sol";
 import {DecentEthRouter} from "../../src/DecentEthRouter.sol";
 import {WETH} from "solmate/tokens/WETH.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
-import {RouterDeploymentSetup} from "./RouterDeploymentSetup.sol";
+import {DecentBridgeDeploymentSetup} from "./DecentBridgeDeploymentSetup.sol";
 import {OpenDcntEth} from "./OpenDcntEth.sol";
 import {console2} from "forge-std/console2.sol";
 
@@ -18,7 +18,7 @@ struct BridgeParams {
     uint amount;
 }
 
-contract RouterActions is RouterDeploymentSetup, WethMintHelper {
+contract RouterActions is DecentBridgeDeploymentSetup, WethMintHelper {
     uint8 public constant MT_ETH_TRANSFER = 0;
     uint8 public constant MT_ETH_TRANSFER_WITH_PAYLOAD = 1;
 

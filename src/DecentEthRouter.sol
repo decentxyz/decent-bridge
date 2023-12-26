@@ -6,12 +6,12 @@ import {DcntEth} from "./DcntEth.sol";
 import {ICommonOFT} from "solidity-examples/token/oft/v2/interfaces/ICommonOFT.sol";
 import {IOFTReceiverV2} from "solidity-examples/token/oft/v2/interfaces/IOFTReceiverV2.sol";
 import {Owned} from "solmate/auth/Owned.sol";
-import {Executor} from "./Executor.sol";
+import {DecentBridgeExecutor} from "./DecentBridgeExecutor.sol";
 
 contract DecentEthRouter is IOFTReceiverV2, Owned {
     WETH public weth;
     DcntEth public dcntEth;
-    Executor public executor;
+    DecentBridgeExecutor public executor;
 
     uint8 public constant MT_ETH_TRANSFER = 0;
     uint8 public constant MT_ETH_TRANSFER_WITH_PAYLOAD = 1;
@@ -29,7 +29,7 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
     ) Owned(msg.sender) {
         weth = WETH(_wethAddress);
         gasCurrencyIsEth = gasIsEth;
-        executor = Executor(payable(_executor));
+        executor = DecentBridgeExecutor(payable(_executor));
     }
 
     modifier onlyEthChain() {

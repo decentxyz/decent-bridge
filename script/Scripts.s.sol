@@ -10,7 +10,7 @@ import {console2} from "forge-std/console2.sol";
 import {Script} from "forge-std/Script.sol";
 import {BroadcastMultichainSetup} from "./util/BroadcastMultichainSetup.sol";
 import {ParseChainsFromEnvVars} from "./util/ParseChainsFromEnvVars.sol";
-import {LoadDeployedContracts} from "./util/LoadDeployedContracts.sol";
+import {LoadDecentBridgeDeployedContracts} from "./util/LoadDecentBridgeDeployedContracts.sol";
 import {MultichainDeployer} from "../test/common/MultichainDeployer.sol";
 import {LoadAllChainInfo} from "arshans-forge-toolkit/LoadAllChainInfo.sol";
 import {RouterActions} from "../test/common/RouterActions.sol";
@@ -26,9 +26,8 @@ contract FakeWeth is ERC20, Owned {
 contract Common is
     Script,
     MultichainDeployer,
-    LoadAllChainInfo,
     ParseChainsFromEnvVars,
-    LoadDeployedContracts,
+    LoadDecentBridgeDeployedContracts,
     RouterActions
 {
     function overrideFtmTestnet() private {
@@ -62,8 +61,8 @@ contract ClearLz is Common {
     function run() public {
         string memory src = vm.envString("src");
         string memory dst = vm.envString("dst");
-        loadForChain(src);
-        loadForChain(dst);
+        loadDecentBridgeContractsForChain(src);
+        loadDecentBridgeContractsForChain(dst);
         address srcUa = address(dcntEthLookup[src]);
         address dstUa = address(dcntEthLookup[dst]);
         bytes memory srcPath = abi.encodePacked(srcUa, dstUa);
@@ -83,8 +82,8 @@ contract RetryLz is Common {
     function run() public {
         string memory src = vm.envString("src");
         string memory dst = vm.envString("dst");
-        loadForChain(src);
-        loadForChain(dst);
+        loadDecentBridgeContractsForChain(src);
+        loadDecentBridgeContractsForChain(dst);
         address srcUa = address(dcntEthLookup[src]);
         address dstUa = address(dcntEthLookup[dst]);
         bytes memory srcPath = abi.encodePacked(srcUa, dstUa);
@@ -103,8 +102,8 @@ contract Bridge is Common {
         uint amount = vm.envUint("bridge_amount");
         string memory src = vm.envString("src");
         string memory dst = vm.envString("dst");
-        loadForChain(src);
-        loadForChain(dst);
+        loadDecentBridgeContractsForChain(src);
+        loadDecentBridgeContractsForChain(dst);
 
         address from = vm.envOr("from", msg.sender);
         address to = vm.envOr("to", msg.sender);
@@ -138,7 +137,7 @@ contract AddLiquidity is Common {
     function run() public {
         string memory chain = vm.envString("chain");
         uint amount = vm.envUint("liquidity");
-        loadForChain(chain);
+        loadDecentBridgeContractsForChain(chain);
         addLiquidity(chain, amount);
     }
 }
@@ -147,7 +146,7 @@ contract RemoveLiquidity is Common {
     function run() public {
         string memory chain = vm.envString("chain");
         uint amount = vm.envUint("liquidity");
-        loadForChain(chain);
+        loadDecentBridgeContractsForChain(chain);
         removeLiquidity(chain, amount);
     }
 }
@@ -156,9 +155,9 @@ contract WireUp is Common {
     function run() public {
         string memory src = vm.envString("src");
         string memory dst = vm.envString("dst");
-        loadForChain(src);
-        loadForChain(dst);
-        wireUpSrcToDst(src, dst);
+        loadDecentBridgeContractsForChain(src);
+        loadDecentBridgeContractsForChain(dst);
+        wireUpSrcToDstDecentBridge(src, dst);
     }
 }
 
@@ -166,6 +165,6 @@ contract Deploy is Common {
     function run() public {
         string memory chain = vm.envString("chain");
         console2.log("chain is", chain);
-        deployAndRegister(chain);
+        deployDecentBridgeRouterAndRegisterDecentEth(chain);
     }
 }

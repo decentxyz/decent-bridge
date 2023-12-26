@@ -5,15 +5,15 @@ import {MockEndpoint} from "arshans-forge-toolkit/LzChainSetup.sol";
 import {WETH} from "solmate/tokens/WETH.sol";
 import {Test} from "forge-std/Test.sol";
 import {TestMultichainSetup} from "./common/TestMultichainSetup.sol";
-import {LoadDeployedContracts} from "../script/util/LoadDeployedContracts.sol";
+import {LoadDecentBridgeDeployedContracts} from "../script/util/LoadDecentBridgeDeployedContracts.sol";
 import {console2} from "forge-std/console2.sol";
 
-contract QuickChecks is Test, TestMultichainSetup, LoadDeployedContracts {
+contract QuickChecks is Test, TestMultichainSetup, LoadDecentBridgeDeployedContracts {
     function skipTestCallRetryPayload() public {
         string memory src = "base";
         string memory dst = "zora";
-        loadForChain(src);
-        loadForChain(dst);
+        loadDecentBridgeContractsForChain(src);
+        loadDecentBridgeContractsForChain(dst);
         address srcUa = address(dcntEthLookup[src]);
         address dstUa = address(dcntEthLookup[dst]);
         bytes memory srcPath = abi.encodePacked(srcUa, dstUa);
@@ -27,7 +27,7 @@ contract QuickChecks is Test, TestMultichainSetup, LoadDeployedContracts {
     function testCheckLiquidity() public {
         setPathAndFile("actual-deployments/latest", "mainnet_deployments.json");
         string memory chain = "zora";
-        loadForChain(chain);
+        loadDecentBridgeContractsForChain(chain);
         switchTo(chain);
         WETH w = WETH(payable(wethLookup[chain]));
         uint balance = w.balanceOf(address(routerLookup[chain]));

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {Executor} from "../../src/Executor.sol";
+import {DecentBridgeExecutor} from "../../src/DecentBridgeExecutor.sol";
 import {OpenDcntEth} from "./OpenDcntEth.sol";
 import {DecentEthRouter} from "../../src/DecentEthRouter.sol";
 import {DcntEth} from "../../src/DcntEth.sol";
@@ -9,20 +9,20 @@ import {console2} from "forge-std/console2.sol";
 import {ChainDeployer} from "better-deployer/ChainDeployer.sol";
 import {LoadAllChainInfo} from "arshans-forge-toolkit/LoadAllChainInfo.sol";
 
-contract RouterDeploymentSetup is LoadAllChainInfo, ChainDeployer {
+contract DecentBridgeDeploymentSetup is LoadAllChainInfo, ChainDeployer {
     mapping(string => DecentEthRouter) routerLookup;
     mapping(string => DcntEth) dcntEthLookup;
     uint MIN_DST_GAS = 100000;
 
-    function deployRouterAndDecentEth(string memory chain) public {
+    function deployDecentBridgeRouterAndDecentEth(string memory chain) public {
         switchTo(chain);
 
-        Executor executor = Executor(
+        DecentBridgeExecutor executor = DecentBridgeExecutor(
             payable(
                 deployChain(
                     chain,
-                    "decentEthRouterExecutor",
-                    "Executor.sol:Executor",
+                    "DecentBridgeExecutor",
+                    "DecentBridgeExecutor.sol:DecentBridgeExecutor",
                     abi.encode(payable(wethLookup[chain]), gasEthLookup[chain])
                 )
             )
@@ -32,7 +32,7 @@ contract RouterDeploymentSetup is LoadAllChainInfo, ChainDeployer {
             payable(
                 deployChain(
                     chain,
-                    "decentEthRouter",
+                    "DecentEthRouter",
                     "DecentEthRouter.sol:DecentEthRouter",
                     abi.encode(
                         payable(wethLookup[chain]),
@@ -52,7 +52,7 @@ contract RouterDeploymentSetup is LoadAllChainInfo, ChainDeployer {
             dcntEth = OpenDcntEth(
                 deployChain(
                     chain,
-                    "dcntEth",
+                    "DcntEth",
                     "OpenDcntEth.sol:OpenDcntEth",
                     abi.encode(lzEndpoint)
                 )
@@ -61,7 +61,7 @@ contract RouterDeploymentSetup is LoadAllChainInfo, ChainDeployer {
             dcntEth = DcntEth(
                 deployChain(
                     chain,
-                    "dcntEth",
+                    "DcntEth",
                     "DcntEth.sol:DcntEth",
                     abi.encode(lzEndpoint)
                 )
@@ -78,15 +78,15 @@ contract RouterDeploymentSetup is LoadAllChainInfo, ChainDeployer {
         dcntEth.transferOwnership(address(router));
     }
 
-    function deployAndRegister(string memory chain) public {
-        deployRouterAndDecentEth(chain);
+    function deployDecentBridgeRouterAndRegisterDecentEth(string memory chain) public {
+        deployDecentBridgeRouterAndDecentEth(chain);
         registerDecentEth(chain);
         if (!isForgeTest()) {
             dump();
         }
     }
 
-    function wireUpSrcToDst(string memory src, string memory dst) public {
+    function wireUpSrcToDstDecentBridge(string memory src, string memory dst) public {
         switchTo(src);
         DecentEthRouter srcRouter = routerLookup[src];
         startImpersonating(srcRouter.owner());
@@ -100,7 +100,7 @@ contract RouterDeploymentSetup is LoadAllChainInfo, ChainDeployer {
     }
 
     function wireUp(string memory src, string memory dst) public {
-        wireUpSrcToDst(src, dst);
-        wireUpSrcToDst(dst, src);
+        wireUpSrcToDstDecentBridge(src, dst);
+        wireUpSrcToDstDecentBridge(dst, src);
     }
 }

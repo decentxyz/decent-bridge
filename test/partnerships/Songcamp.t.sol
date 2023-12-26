@@ -8,7 +8,7 @@ import {C4TEST} from "../../script/partnerships/C4TEST.sol";
 import {AliceAndBobScenario} from "../common/AliceAndBobScenario.sol";
 import {LoadAllChainInfo} from "arshans-forge-toolkit/LoadAllChainInfo.sol";
 
-contract Songcamp is Test, AliceAndBobScenario, LoadAllChainInfo {
+contract Songcamp is Test, AliceAndBobScenario {
     constructor() {}
 
     C4TEST nft;
