@@ -19,3 +19,6 @@
 [submodule "lib/better-deployer"]
 	path = lib/better-deployer
 	url = https://github.com/decentxyz/better-deployer
+[submodule "lib/forge-toolkit"]
+	path = lib/forge-toolkit
+	url = https://github.com/decentxyz/forge-toolkit
