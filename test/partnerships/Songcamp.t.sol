@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {BaseChainSetup} from "arshans-forge-toolkit/BaseChainSetup.sol";
+import {BaseChainSetup} from "forge-toolkit/BaseChainSetup.sol";
 import {console2} from "forge-std/console2.sol";
 import {Test} from "forge-std/Test.sol";
 import {C4TEST} from "../../script/partnerships/C4TEST.sol";
 import {AliceAndBobScenario} from "../common/AliceAndBobScenario.sol";
-import {LoadAllChainInfo} from "arshans-forge-toolkit/LoadAllChainInfo.sol";
+import {LoadAllChainInfo} from "forge-toolkit/LoadAllChainInfo.sol";
 
 contract Songcamp is Test, AliceAndBobScenario {
     constructor() {}

@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {OpenDcntEth} from "../../test/common/OpenDcntEth.sol";
 import {DecentEthRouter} from "../../src/DecentEthRouter.sol";
 import {DecentBridgeExecutor} from "../../src/DecentBridgeExecutor.sol";
-import {LzChainSetup} from "arshans-forge-toolkit/LzChainSetup.sol";
+import {LzChainSetup} from "forge-toolkit/LzChainSetup.sol";
 import {DecentBridgeDeploymentSetup} from "../../test/common/DecentBridgeDeploymentSetup.sol";
 
 contract LoadDecentBridgeDeployedContracts is

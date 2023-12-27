@@ -7,7 +7,7 @@ import {DecentEthRouter} from "../../src/DecentEthRouter.sol";
 import {DcntEth} from "../../src/DcntEth.sol";
 import {console2} from "forge-std/console2.sol";
 import {ChainDeployer} from "better-deployer/ChainDeployer.sol";
-import {LoadAllChainInfo} from "arshans-forge-toolkit/LoadAllChainInfo.sol";
+import {LoadAllChainInfo} from "forge-toolkit/LoadAllChainInfo.sol";
 
 contract DecentBridgeDeploymentSetup is LoadAllChainInfo, ChainDeployer {
     mapping(string => DecentEthRouter) routerLookup;

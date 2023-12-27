@@ -5,8 +5,8 @@ import {Test, console2} from "forge-std/Test.sol";
 import {AliceAndBobScenario} from "./common/AliceAndBobScenario.sol";
 import {CoolCat} from "./common/CoolCat.sol";
 import {WethChain2EthChainScenario} from "./common/WethChain2EthChainScenario.sol";
-import {WethMintHelper} from "arshans-forge-toolkit/WethMintHelper.sol";
-import {BalanceAssertions} from "arshans-forge-toolkit/BalanceAssertions.sol";
+import {WethMintHelper} from "forge-toolkit/WethMintHelper.sol";
+import {BalanceAssertions} from "forge-toolkit/BalanceAssertions.sol";
 
 contract SourceChainWethCommonHelpers is
     AliceAndBobScenario,

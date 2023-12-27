@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {Script} from "forge-std/Script.sol";
-import {LoadAllChainInfo} from "arshans-forge-toolkit/LoadAllChainInfo.sol";
+import {LoadAllChainInfo} from "forge-toolkit/LoadAllChainInfo.sol";
 import "./C4TEST.sol";
 
 contract Songcamp is Script, LoadAllChainInfo, C4TEST {

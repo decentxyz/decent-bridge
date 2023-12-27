@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {MockEndpoint} from "arshans-forge-toolkit/LzChainSetup.sol";
-import {WethMintHelper} from "arshans-forge-toolkit/WethMintHelper.sol";
+import {MockEndpoint} from "forge-toolkit/LzChainSetup.sol";
+import {WethMintHelper} from "forge-toolkit/WethMintHelper.sol";
 import {DecentEthRouter} from "../../src/DecentEthRouter.sol";
 import {WETH} from "solmate/tokens/WETH.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
