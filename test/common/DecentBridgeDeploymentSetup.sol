@@ -12,6 +12,7 @@ import {LoadAllChainInfo} from "arshans-forge-toolkit/LoadAllChainInfo.sol";
 contract DecentBridgeDeploymentSetup is LoadAllChainInfo, ChainDeployer {
     mapping(string => DecentEthRouter) routerLookup;
     mapping(string => DcntEth) dcntEthLookup;
+    mapping(string => DecentBridgeExecutor) decentBridgeExecutorLookup;
     uint MIN_DST_GAS = 100000;
 
     function deployDecentBridgeRouterAndDecentEth(string memory chain) public {
@@ -45,6 +46,7 @@ contract DecentBridgeDeploymentSetup is LoadAllChainInfo, ChainDeployer {
 
         executor.transferOwnership(address(router));
 
+        decentBridgeExecutorLookup[chain] = executor;
         routerLookup[chain] = router;
         DcntEth dcntEth;
         address lzEndpoint = address(lzEndpointLookup[chain]);
@@ -78,7 +80,9 @@ contract DecentBridgeDeploymentSetup is LoadAllChainInfo, ChainDeployer {
         dcntEth.transferOwnership(address(router));
     }
 
-    function deployDecentBridgeRouterAndRegisterDecentEth(string memory chain) public {
+    function deployDecentBridgeRouterAndRegisterDecentEth(
+        string memory chain
+    ) public {
         deployDecentBridgeRouterAndDecentEth(chain);
         registerDecentEth(chain);
         if (!isForgeTest()) {
@@ -86,7 +90,10 @@ contract DecentBridgeDeploymentSetup is LoadAllChainInfo, ChainDeployer {
         }
     }
 
-    function wireUpSrcToDstDecentBridge(string memory src, string memory dst) public {
+    function wireUpSrcToDstDecentBridge(
+        string memory src,
+        string memory dst
+    ) public {
         switchTo(src);
         DecentEthRouter srcRouter = routerLookup[src];
         startImpersonating(srcRouter.owner());
