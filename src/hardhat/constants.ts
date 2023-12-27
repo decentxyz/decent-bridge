@@ -23,3 +23,17 @@ export const aliasLookup: Record<ChainId, string> = {
   [ChainId.SOLANA_DEVNET]: "solana-devnet",
   [ChainId.SOLANA_MAINNET]: "solana",
 };
+
+const chainIdFromAlias: { [key: string]: ChainId } = Object.keys(
+  aliasLookup,
+).reduce(
+  (acc, key) => {
+    const value = aliasLookup[parseInt(key) as ChainId];
+    // @ts-ignore
+    acc[value] = key;
+    return acc;
+  },
+  {} as { [key: string]: ChainId },
+);
+
+export { chainIdFromAlias };

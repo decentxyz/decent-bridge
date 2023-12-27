@@ -11,7 +11,8 @@ import {
 } from "@decent.xyz/box-common";
 import { exec } from "shelljs";
 import { Address, defineChain, formatUnits, http, parseEther } from "viem";
-import { aliasLookup } from "../constants";
+import { aliasLookup, chainIdFromAlias } from "../constants";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 const chains = [
   ChainId.ETHEREUM,
@@ -25,6 +26,32 @@ export const getDeployerAddress = (): Address => {
   return ensureEnv("TESTNET_ACCOUNT_ADDRESS") as Address;
 };
 
+export const getForknetTestClient = async ({
+  chainId,
+  chain,
+  hre,
+}: {
+  chainId?: ChainId;
+  chain?: string;
+  hre: HardhatRuntimeEnvironment;
+}) => {
+  if (chainId == undefined && chain == undefined) {
+    throw Error(`at least one of chain alias or chain id must be provided`);
+  }
+  chainId = chainId !== undefined ? chainId : chainIdFromAlias[chain!];
+  return hre.viem.getTestClient({
+    chain: defineChain({
+      ...getWagmiChain(chainId),
+      rpcUrls: {
+        default: { http: [getForkRpc(chainId)] },
+        public: { http: [getForkRpc(chainId)] },
+      },
+    }),
+    mode: "anvil",
+    transport: http(),
+  });
+};
+
 task("start-forknets", async (action, hre) => {
   const _start = async (chainId: ChainId) => {
     const chain = aliasLookup[chainId];
@@ -36,17 +63,7 @@ task("start-forknets", async (action, hre) => {
       additionalArgs: `--auto-impersonate`,
     });
 
-    const testClient = await hre.viem.getTestClient({
-      chain: defineChain({
-        ...getWagmiChain(chainId),
-        rpcUrls: {
-          default: { http: [getForkRpc(chainId)] },
-          public: { http: [getForkRpc(chainId)] },
-        },
-      }),
-      mode: "anvil",
-      transport: http(),
-    });
+    const testClient = await getForknetTestClient({ hre, chain });
 
     await testClient.setBalance({
       address: getDeployerAddress(),
@@ -59,15 +76,15 @@ task("start-forknets", async (action, hre) => {
   await hre.run("start-glue");
 });
 
-const getScript = (name: string) => `script/Scripts.s.sol:${name}`;
+const getScriptPath = (name: string) => `script/Scripts.s.sol:${name}`;
 
-const beep = "*".repeat(30);
-enum Runtime {
+export const beep = "*".repeat(30);
+export enum Runtime {
   MAINNET = "mainnet",
   TESTNET = "testnet",
   FORKNET = "forknet",
 }
-const ensureEnv = (key: string): string => {
+export const ensureEnv = (key: string): string => {
   const value = process.env[key];
   if (value === undefined) {
     throw new Error(`env var ${key} not set`);
@@ -75,7 +92,7 @@ const ensureEnv = (key: string): string => {
   return value;
 };
 
-const commonParams: Record<Runtime, string> = {
+export const commonParams: Record<Runtime, string> = {
   [Runtime.MAINNET]: `--broadcast -vvvv --private-key=${beep} --verify --slow`,
   [Runtime.TESTNET]: `--broadcast -vvvv --private-key=${beep} --verify --slow`,
   [Runtime.FORKNET]: `--broadcast -vvvv --unlocked --sender=${ensureEnv(
@@ -83,7 +100,7 @@ const commonParams: Record<Runtime, string> = {
   )}`,
 };
 
-const uncensor = (cmd: string, runtime: Runtime) => {
+export const uncensor = (cmd: string, runtime: Runtime) => {
   if (runtime === Runtime.MAINNET) {
     return cmd.replace(beep, ensureEnv("MAINNET_ACCOUNT"));
   } else if (runtime === Runtime.TESTNET) {
@@ -92,20 +109,18 @@ const uncensor = (cmd: string, runtime: Runtime) => {
   return cmd;
 };
 
-const buildCmd = (
+export const buildScriptCmd = (
   envs: Lookup<string, string>,
-  scriptName: string,
+  scriptPath: string,
   runtime: Runtime,
 ) => {
   const envStr = Object.keys(envs)
     .map((key) => `${key}=${envs[key]}`)
     .join(" ");
-  return `${envStr} forge script ${getScript(scriptName)} ${
-    commonParams[runtime]
-  }`;
+  return `${envStr} forge script ${scriptPath} ${commonParams[runtime]}`;
 };
 
-type TaskType = ReturnType<typeof task>;
+export type TaskType = ReturnType<typeof task>;
 
 export const chainParam = (targetTask: TaskType): TaskType =>
   targetTask.addParam<string>("chain", "chain to deploy to");
@@ -122,7 +137,7 @@ export const runtimeParam = (targetTask: TaskType): TaskType =>
 export const chainsParam = (targetTask: TaskType): TaskType =>
   targetTask.addOptionalParam<string>(
     "chains",
-    "comma-separated list of chains to do the setup with",
+    "comma-separated list of chains",
     chains.map((chain) => aliasLookup[chain]).join(","),
   );
 
@@ -131,7 +146,8 @@ export const srcDstParam = (targetTask: TaskType): TaskType =>
     .addParam<string>("src", "src chain")
     .addParam<string>("dst", "dst chain");
 
-export const addParams = (adders: ((t: TaskType) => TaskType)[], t: TaskType) =>
+export type ParamAdder = (t: TaskType) => TaskType;
+export const addParams = (adders: ParamAdder[], t: TaskType) =>
   adders.forEach((adder) => adder(t));
 
 addParams(
@@ -139,8 +155,8 @@ addParams(
   task<{
     runtime: Runtime;
     chain: string;
-  }>("deploy", async ({ runtime, chain }, hre) => {
-    let cmd = buildCmd({ chain }, "Deploy", runtime);
+  }>("deploy-decent-bridge", async ({ runtime, chain }, hre) => {
+    let cmd = buildScriptCmd({ chain }, getScriptPath("Deploy"), runtime);
     console.log(`running cmd: "${cmd}"`);
     cmd = uncensor(cmd, runtime);
     exec(cmd);
@@ -154,7 +170,7 @@ addParams(
     src: string;
     dst: string;
   }>("wire-up-src-to-dst", async ({ runtime, src, dst }, hre) => {
-    let cmd = buildCmd({ src, dst }, "WireUp", runtime);
+    let cmd = buildScriptCmd({ src, dst }, getScriptPath("WireUp"), runtime);
     console.log(`running cmd: "${cmd}"`);
     cmd = uncensor(cmd, runtime);
     console.log(`wiring up ${src} to ${dst}`);
@@ -183,9 +199,9 @@ addParams(
     runtime: Runtime;
     amount: string;
   }>("add-liquidity", async ({ runtime, amount, chain }, hre) => {
-    let cmd = buildCmd(
+    let cmd = buildScriptCmd(
       { chain, liquidity: formatUnits(parseEther(amount), 0) },
-      "AddLiquidity",
+      getScriptPath("AddLiquidity"),
       runtime,
     );
     console.log(`running cmd: "${cmd}"`);
@@ -248,9 +264,9 @@ addParams(
     dst: string;
     amount: string;
   }>("bridge", async ({ runtime, src, dst, amount }, hre) => {
-    let cmd = buildCmd(
+    let cmd = buildScriptCmd(
       { src, dst, bridge_amount: formatUnits(parseEther(amount), 0) },
-      "Bridge",
+      getScriptPath("Bridge"),
       runtime,
     );
     console.log(`running cmd: "${cmd}"`);
