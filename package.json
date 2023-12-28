@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@decent.xyz/box-common": "^1.0.15",
-    "@decent.xyz/houndry-toolkit": "^1.0.22",
+    "@decent.xyz/houndry-toolkit": "^1.0.23",
     "@nomicfoundation/hardhat-viem": "^1.0.1",
     "@types/shelljs": "^0.8.15",
     "dotenv": "^16.3.1",

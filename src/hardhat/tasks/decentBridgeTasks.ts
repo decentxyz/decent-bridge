@@ -20,6 +20,7 @@ const chains = [
   ChainId.OPTIMISM,
   ChainId.ZORA,
   ChainId.BASE,
+  ChainId.POLYGON,
 ];
 
 export const getDeployerAddress = (): Address => {
