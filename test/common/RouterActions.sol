@@ -39,7 +39,11 @@ contract RouterActions is DecentBridgeDeploymentSetup, WethMintHelper {
             router.addLiquidityEth{value: amount}();
         } else {
             ERC20 weth = ERC20(getWeth(chain));
-            mintWethTo(chain, address(this), amount);
+            if (isForgeTest()) {
+                mintWethTo(chain, address(this), amount);
+            } else {
+                mintWethTo(chain, address(msg.sender), amount);
+            }
             weth.approve(address(router), amount);
             router.addLiquidityWeth(amount);
         }
