@@ -28,7 +28,7 @@ contract DecentEthRouterNoFork is CommonRouterSetup {
         executor.transferOwnership(address(router));
         dcntEth = new DcntEth(lzEndpointArbitrum);
         router.registerDcntEth(address(dcntEth));
-        dcntEth.transferOwnership(address(router));
+        dcntEth.setRouter(address(router));
     }
 
     function addLiquidity(uint amount) internal {

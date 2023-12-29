@@ -68,16 +68,9 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
 
     function addDestinationBridge(
         uint16 _dstChainId,
-        address _routerAddress,
-        address dstDcntEth,
-        uint _minDstGas
+        address _routerAddress
     ) public onlyOwner {
         destinationBridges[_dstChainId] = _routerAddress;
-        dcntEth.setTrustedRemote(
-            _dstChainId,
-            abi.encodePacked(dstDcntEth, address(dcntEth))
-        );
-        dcntEth.setMinDstGas(_dstChainId, PT_SEND_AND_CALL, _minDstGas);
     }
 
     function _getCallParams(

@@ -90,6 +90,7 @@ contract AliceAndBobScenario is SrcDstChainScenario, RouterActions {
         uint64 dstGasForCall,
         bytes memory payload
     ) public returns (uint fees) {
+        startRecordingLzMessages();
         (
             BridgeParams memory params,
             uint8 msgType,
@@ -102,7 +103,6 @@ contract AliceAndBobScenario is SrcDstChainScenario, RouterActions {
                 payload
             );
         fees = _fees;
-
-        receiveOFT(params, msgType, deliverEth, dstGasForCall, payload);
+        deliverLzMessageAtDestination(params.src, params.dst, dstGasForCall);
     }
 }

@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import {DecentBridgeExecutor} from "../../src/DecentBridgeExecutor.sol";
-import {OpenDcntEth} from "./OpenDcntEth.sol";
 import {DecentEthRouter} from "../../src/DecentEthRouter.sol";
 import {DcntEth} from "../../src/DcntEth.sol";
 import {console2} from "forge-std/console2.sol";
@@ -50,25 +49,14 @@ contract DecentBridgeDeploymentSetup is LoadAllChainInfo, ChainDeployer {
         routerLookup[chain] = router;
         DcntEth dcntEth;
         address lzEndpoint = address(lzEndpointLookup[chain]);
-        if (isForgeTest()) {
-            dcntEth = OpenDcntEth(
-                deployChain(
-                    chain,
-                    "DcntEth",
-                    "OpenDcntEth.sol:OpenDcntEth",
-                    abi.encode(lzEndpoint)
-                )
-            );
-        } else {
-            dcntEth = DcntEth(
-                deployChain(
-                    chain,
-                    "DcntEth",
-                    "DcntEth.sol:DcntEth",
-                    abi.encode(lzEndpoint)
-                )
-            );
-        }
+        dcntEth = DcntEth(
+            deployChain(
+                chain,
+                "DcntEth",
+                "DcntEth.sol:DcntEth",
+                abi.encode(lzEndpoint)
+            )
+        );
         dcntEthLookup[chain] = dcntEth;
     }
 
@@ -77,7 +65,7 @@ contract DecentBridgeDeploymentSetup is LoadAllChainInfo, ChainDeployer {
         DecentEthRouter router = routerLookup[chain];
         console2.log("dcntEth & router: ", address(dcntEth), address(router));
         router.registerDcntEth(address(dcntEth));
-        dcntEth.transferOwnership(address(router));
+        dcntEth.setRouter(address(router));
     }
 
     function deployDecentBridgeRouterAndRegisterDecentEth(
@@ -96,11 +84,20 @@ contract DecentBridgeDeploymentSetup is LoadAllChainInfo, ChainDeployer {
     ) public {
         switchTo(src);
         DecentEthRouter srcRouter = routerLookup[src];
+        DcntEth srcDcntEth = dcntEthLookup[src];
+        DcntEth dstDcntEth = dcntEthLookup[dst];
         startImpersonating(srcRouter.owner());
         srcRouter.addDestinationBridge(
             lzIdLookup[dst],
-            address(routerLookup[dst]),
-            address(dcntEthLookup[dst]),
+            address(routerLookup[dst])
+        );
+        srcDcntEth.setTrustedRemote(
+            lzIdLookup[dst],
+            abi.encodePacked(dstDcntEth, srcDcntEth)
+        );
+        srcDcntEth.setMinDstGas(
+            lzIdLookup[dst],
+            srcDcntEth.PT_SEND_AND_CALL(),
             MIN_DST_GAS
         );
         stopImpersonating();

@@ -7,7 +7,6 @@ import {DecentEthRouter} from "../../src/DecentEthRouter.sol";
 import {WETH} from "solmate/tokens/WETH.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {DecentBridgeDeploymentSetup} from "./DecentBridgeDeploymentSetup.sol";
-import {OpenDcntEth} from "./OpenDcntEth.sol";
 import {console2} from "forge-std/console2.sol";
 
 struct BridgeParams {
@@ -99,51 +98,5 @@ contract RouterActions is DecentBridgeDeploymentSetup, WethMintHelper {
             );
         }
         stopImpersonating();
-    }
-
-    function receiveOFT(
-        BridgeParams memory params,
-        uint8 msgType,
-        bool deliverEth,
-        uint64 dstGasForCall,
-        bytes memory payload
-    ) public {
-        switchTo(params.src);
-        bytes memory oftPayload;
-        if (msgType == MT_ETH_TRANSFER) {
-            oftPayload = abi.encode(
-                msgType,
-                params.fromAddress,
-                params.toAddress,
-                deliverEth
-            );
-        } else {
-            oftPayload = abi.encode(
-                msgType,
-                params.fromAddress,
-                params.toAddress,
-                deliverEth,
-                payload
-            );
-        }
-
-        bytes memory lzPayload = OpenDcntEth(address(dcntEthLookup[params.src]))
-            .encodeSendAndCallPayload(
-                address(routerLookup[params.src]), // first router (has decent eth)
-                address(routerLookup[params.dst]), // to address (has decent eth)
-                params.amount,
-                oftPayload, // will have the recipients address
-                dstGasForCall
-            );
-        address srcDcnEth = address(dcntEthLookup[params.src]);
-        address dstDcnEth = address(dcntEthLookup[params.dst]);
-        receiveLzMessage(
-            params.src,
-            params.dst,
-            srcDcnEth,
-            dstDcnEth,
-            dstGasForCall,
-            lzPayload
-        );
     }
 }

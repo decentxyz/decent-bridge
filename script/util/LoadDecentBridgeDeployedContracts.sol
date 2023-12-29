@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {OpenDcntEth} from "../../test/common/OpenDcntEth.sol";
+import {DcntEth} from "../../src/DcntEth.sol";
 import {DecentEthRouter} from "../../src/DecentEthRouter.sol";
 import {DecentBridgeExecutor} from "../../src/DecentBridgeExecutor.sol";
 import {LzChainSetup} from "forge-toolkit/LzChainSetup.sol";
@@ -15,7 +15,7 @@ contract LoadDecentBridgeDeployedContracts is
         routerLookup[chain] = DecentEthRouter(
             payable(getDeployment(chain, "DecentEthRouter"))
         );
-        dcntEthLookup[chain] = OpenDcntEth(getDeployment(chain, "DcntEth"));
+        dcntEthLookup[chain] = DcntEth(getDeployment(chain, "DcntEth"));
         decentBridgeExecutorLookup[chain] = DecentBridgeExecutor(
             payable(getDeployment(chain, "DecentBridgeExecutor"))
         );
