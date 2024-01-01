@@ -64,6 +64,8 @@ task("start-forknets", async (action, hre) => {
       additionalArgs: `--auto-impersonate`,
     });
 
+    await sleep(100);
+
     const testClient = await getForknetTestClient({ hre, chain });
 
     await testClient.setBalance({
@@ -74,7 +76,7 @@ task("start-forknets", async (action, hre) => {
 
   for (const chainId of chains) {
     await _start(chainId);
-    await sleep(0.2);
+    await sleep(100);
   }
 
   await sleep(1000);
