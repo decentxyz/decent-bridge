@@ -72,7 +72,11 @@ task("start-forknets", async (action, hre) => {
     });
   };
 
-  await Promise.all(chains.map(_start));
+  for (const chainId of chains) {
+    await _start(chainId);
+    await sleep(0.2);
+  }
+
   await sleep(1000);
   await hre.run("start-glue");
 });
@@ -146,6 +150,11 @@ export const srcDstParam = (targetTask: TaskType): TaskType =>
   targetTask
     .addParam<string>("src", "src chain")
     .addParam<string>("dst", "dst chain");
+
+export const fromToParam = (targetTask: TaskType): TaskType =>
+  targetTask
+    .addOptionalParam<string>("from", "from address")
+    .addOptionalParam<string>("to", "to address");
 
 export type ParamAdder = (t: TaskType) => TaskType;
 export const addParams = (adders: ParamAdder[], t: TaskType) =>
@@ -258,15 +267,17 @@ addParams(
 );
 
 addParams(
-  [runtimeParam, srcDstParam, amountParam],
+  [runtimeParam, srcDstParam, amountParam, fromToParam],
   task<{
     runtime: Runtime;
     src: string;
     dst: string;
     amount: string;
-  }>("bridge", async ({ runtime, src, dst, amount }, hre) => {
+    from: string;
+    to: string;
+  }>("bridge", async ({ runtime, src, dst, amount, from, to }, hre) => {
     let cmd = buildScriptCmd(
-      { src, dst, bridge_amount: formatUnits(parseEther(amount), 0) },
+      { src, dst, bridge_amount: formatUnits(parseEther(amount), 0), from, to },
       getScriptPath("Bridge"),
       runtime,
     );
