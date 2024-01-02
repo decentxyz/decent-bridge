@@ -64,7 +64,7 @@ task("start-forknets", async (action, hre) => {
       additionalArgs: `--auto-impersonate`,
     });
 
-    await sleep(100);
+    await sleep(1000);
 
     const testClient = await getForknetTestClient({ hre, chain });
 
