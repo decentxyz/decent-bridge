@@ -233,7 +233,7 @@ addParams(
     const _deployAndAddLiquidity = async () => {
       await Promise.all(
         chains.map(async (chain) => {
-          await hre.run("deploy", { runtime, chain });
+          await hre.run("deploy-decent-bridge", { runtime, chain });
           await hre.run("add-liquidity", { runtime, chain, amount });
         }),
       );
