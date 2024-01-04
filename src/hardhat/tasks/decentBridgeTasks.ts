@@ -14,6 +14,9 @@ import { Address, defineChain, formatUnits, http, parseEther } from "viem";
 import { aliasLookup, chainIdFromAlias } from "../constants";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
+const PROJECT = "decent-bridge";
+const BASE_DIR = __dirname.substring(0, __dirname.lastIndexOf(PROJECT) + PROJECT.length);
+
 const chains = [
   ChainId.ETHEREUM,
   ChainId.ARBITRUM,
@@ -90,7 +93,7 @@ task("start-forknets", async (action, hre) => {
   await hre.run("start-glue");
 });
 
-const getScriptPath = (name: string) => `script/Scripts.s.sol:${name}`;
+const getScriptPath = (name: string) => `${BASE_DIR}/script/Scripts.s.sol:${name}`;
 
 export const beep = "*".repeat(30);
 export enum Runtime {
