@@ -63,21 +63,28 @@ task("start-forknets", async (action, hre) => {
       port,
       additionalArgs: `--auto-impersonate`,
     });
+  };
 
-    await sleep(1500);
+  const _setBalance = async (chainId: ChainId) => {
+    const chain = aliasLookup[chainId];
+    console.log(`setting balance on ${chain} fork`);
 
     const testClient = await getForknetTestClient({ hre, chain });
-
     await testClient.setBalance({
       address: getDeployerAddress(),
       value: parseEther("1000"),
     });
-  };
-
-  for (const chainId of chains) {
-    await _start(chainId);
-    await sleep(100);
   }
+
+  await Promise.all(chains.map(async (c, i) => {
+    await sleep(i*1000);
+    await _start(c);
+  }));
+
+  await Promise.all(chains.map(async (c, i) => {
+    await sleep(i*1000);
+    await _setBalance(c)
+  }));
 
   await sleep(1000);
   await hre.run("start-glue");
