@@ -26,8 +26,9 @@ const chains = [
   ChainId.POLYGON,
 ];
 
-export const getDeployerAddress = (): Address => {
-  return ensureEnv("TESTNET_ACCOUNT_ADDRESS") as Address;
+export const getForknetDeployerAddress = (): Address => {
+  // use funded anvil account #1
+  return '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266' as Address;
 };
 
 export const getForknetTestClient = async ({
@@ -68,25 +69,9 @@ task("start-forknets", async (action, hre) => {
     });
   };
 
-  const _setBalance = async (chainId: ChainId) => {
-    const chain = aliasLookup[chainId];
-    console.log(`setting balance on ${chain} fork`);
-
-    const testClient = await getForknetTestClient({ hre, chain });
-    await testClient.setBalance({
-      address: getDeployerAddress(),
-      value: parseEther("1000"),
-    });
-  }
-
   await Promise.all(chains.map(async (c, i) => {
     await sleep(i*1000);
     await _start(c);
-  }));
-
-  await Promise.all(chains.map(async (c, i) => {
-    await sleep(i*1000);
-    await _setBalance(c)
   }));
 
   await sleep(1000);
@@ -112,9 +97,7 @@ export const ensureEnv = (key: string): string => {
 export const commonParams: Record<Runtime, string> = {
   [Runtime.MAINNET]: `--broadcast -vvvv --private-key=${beep} --verify --slow`,
   [Runtime.TESTNET]: `--broadcast -vvvv --private-key=${beep} --verify --slow`,
-  [Runtime.FORKNET]: `--broadcast -vvvv --unlocked --sender=${ensureEnv(
-    "TESTNET_ACCOUNT_ADDRESS",
-  )}`,
+  [Runtime.FORKNET]: `--broadcast -vvvv --unlocked --sender=${getForknetDeployerAddress()}`,
 };
 
 export const uncensor = (cmd: string, runtime: Runtime) => {
