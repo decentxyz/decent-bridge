@@ -3,8 +3,9 @@ pragma solidity ^0.8.0;
 
 import {IWETH} from "./interfaces/IWETH.sol";
 import {Owned} from "solmate/auth/Owned.sol";
+import {IDecentBridgeExecutor} from "./interfaces/IDecentBridgeExecutor.sol";
 
-contract DecentBridgeExecutor is Owned {
+contract DecentBridgeExecutor is IDecentBridgeExecutor, Owned {
     IWETH weth;
     bool public gasCurrencyIsEth; // for chains that use ETH as gas currency
 
@@ -13,6 +14,13 @@ contract DecentBridgeExecutor is Owned {
         gasCurrencyIsEth = gasIsEth;
     }
 
+    /**
+     * @dev helper function for execute
+     * @param from caller of the function
+     * @param target target contract
+     * @param amount amount of the in eth
+     * @param callPayload payload for the tx
+     */
     function _executeWeth(
         address from,
         address target,
@@ -36,6 +44,13 @@ contract DecentBridgeExecutor is Owned {
         weth.transfer(from, remainingAfterCall);
     }
 
+    /**
+     * @dev helper function for execute
+     * @param from caller of the function
+     * @param target target contract
+     * @param amount amount of the transaction
+     * @param callPayload payload for the tx
+     */
     function _executeEth(
         address from,
         address target,
@@ -49,6 +64,7 @@ contract DecentBridgeExecutor is Owned {
         }
     }
 
+    /// @inheritdoc IDecentBridgeExecutor
     function execute(
         address from,
         address target,

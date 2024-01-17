@@ -14,6 +14,9 @@ contract DcntEth is OFTV2 {
         address _layerZeroEndpoint
     ) OFTV2("Decent Eth", "DcntEth", 18, _layerZeroEndpoint) {}
 
+    /**
+     * @param _router the decentEthRouter associated with this eth
+     */
     function setRouter(address _router) public {
         router = _router;
     }
