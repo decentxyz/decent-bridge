@@ -36,8 +36,8 @@ contract Songcamp is Test, AliceAndBobScenario {
         uint num,
         uint256[] memory tokenIds,
         uint256[] memory songSelections,
-        uint nftId,
-        uint songChoiceId
+        uint, // nftId
+        uint // songChoiceId
     ) public returns (bytes memory, address) {
         uint256 privateKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
         address owner = vm.addr(privateKey);

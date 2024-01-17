@@ -93,7 +93,7 @@ contract AliceAndBobScenario is SrcDstChainScenario, RouterActions {
         startRecordingLzMessages();
         (
             BridgeParams memory params,
-            uint8 msgType,
+            , // uint8 msgType
             uint _fees
         ) = sendAliceToTarget(
                 amount,
