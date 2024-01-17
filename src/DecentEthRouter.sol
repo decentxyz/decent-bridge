@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {WETH} from "solmate/tokens/WETH.sol";
-import {DcntEth} from "./DcntEth.sol";
+import {IWETH} from "./interfaces/IWETH.sol";
+import {IDcntEth} from "./interfaces/IDcntEth.sol";
 import {ICommonOFT} from "solidity-examples/token/oft/v2/interfaces/ICommonOFT.sol";
 import {IOFTReceiverV2} from "solidity-examples/token/oft/v2/interfaces/IOFTReceiverV2.sol";
 import {Owned} from "solmate/auth/Owned.sol";
-import {DecentBridgeExecutor} from "./DecentBridgeExecutor.sol";
+import {IDecentBridgeExecutor} from "./interfaces/IDecentBridgeExecutor.sol";
 
 contract DecentEthRouter is IOFTReceiverV2, Owned {
-    WETH public weth;
-    DcntEth public dcntEth;
-    DecentBridgeExecutor public executor;
+    IWETH public weth;
+    IDcntEth public dcntEth;
+    IDecentBridgeExecutor public executor;
 
     uint8 public constant MT_ETH_TRANSFER = 0;
     uint8 public constant MT_ETH_TRANSFER_WITH_PAYLOAD = 1;
@@ -27,9 +27,9 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
         bool gasIsEth,
         address _executor
     ) Owned(msg.sender) {
-        weth = WETH(_wethAddress);
+        weth = IWETH(_wethAddress);
         gasCurrencyIsEth = gasIsEth;
-        executor = DecentBridgeExecutor(payable(_executor));
+        executor = IDecentBridgeExecutor(payable(_executor));
     }
 
     modifier onlyEthChain() {
@@ -63,7 +63,7 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
     }
 
     function registerDcntEth(address _addr) public onlyOwner {
-        dcntEth = DcntEth(_addr);
+        dcntEth = IDcntEth(_addr);
     }
 
     function addDestinationBridge(

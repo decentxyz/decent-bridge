@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {WETH} from "solmate/tokens/WETH.sol";
+import {IWETH} from "./interfaces/IWETH.sol";
 import {Owned} from "solmate/auth/Owned.sol";
 
 contract DecentBridgeExecutor is Owned {
-    WETH weth;
+    IWETH weth;
     bool public gasCurrencyIsEth; // for chains that use ETH as gas currency
 
     constructor(address _weth, bool gasIsEth) Owned(msg.sender) {
-        weth = WETH(payable(_weth));
+        weth = IWETH(payable(_weth));
         gasCurrencyIsEth = gasIsEth;
     }
 
