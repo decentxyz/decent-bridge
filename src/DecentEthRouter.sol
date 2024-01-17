@@ -7,8 +7,9 @@ import {ICommonOFT} from "solidity-examples/token/oft/v2/interfaces/ICommonOFT.s
 import {IOFTReceiverV2} from "solidity-examples/token/oft/v2/interfaces/IOFTReceiverV2.sol";
 import {Owned} from "solmate/auth/Owned.sol";
 import {IDecentBridgeExecutor} from "./interfaces/IDecentBridgeExecutor.sol";
+import {IDecentEthRouter} from "./interfaces/IDecentEthRouter.sol";
 
-contract DecentEthRouter is IOFTReceiverV2, Owned {
+contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
     IWETH public weth;
     IDcntEth public dcntEth;
     IDecentBridgeExecutor public executor;
@@ -21,6 +22,7 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
     bool public gasCurrencyIsEth; // for chains that use ETH as gas currency
 
     mapping(uint16 => address) public destinationBridges;
+    mapping(address => uint256) public balanceOf;
 
     constructor(
         address payable _wethAddress,
@@ -62,10 +64,12 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
         balanceOf[msg.sender] -= amount;
     }
 
+    /// @inheritdoc IDecentEthRouter
     function registerDcntEth(address _addr) public onlyOwner {
         dcntEth = IDcntEth(_addr);
     }
 
+    /// @inheritdoc IDecentEthRouter
     function addDestinationBridge(
         uint16 _dstChainId,
         address _routerAddress
@@ -189,6 +193,7 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
         );
     }
 
+    /// @inheritdoc IDecentEthRouter
     function bridgeWithPayload(
         uint16 _dstChainId,
         address _toAddress,
@@ -209,6 +214,7 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
             );
     }
 
+    /// @inheritdoc IDecentEthRouter
     function bridge(
         uint16 _dstChainId,
         address _toAddress,
@@ -227,15 +233,7 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
         );
     }
 
-    event ReceivedDecentEth(
-        uint8 msgType,
-        uint16 _srcChainId,
-        address from,
-        address _to,
-        uint amount,
-        bytes payload
-    );
-
+    /// @inheritdoc IOFTReceiverV2
     function onOFTReceived(
         uint16 _srcChainId,
         bytes calldata,
@@ -283,6 +281,7 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
         }
     }
 
+    /// @inheritdoc IDecentEthRouter
     function redeemEth(
         uint256 amount
     ) public onlyIfWeHaveEnoughReserves(amount) {
@@ -291,6 +290,7 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
         payable(msg.sender).transfer(amount);
     }
 
+    /// @inheritdoc IDecentEthRouter
     function redeemWeth(
         uint256 amount
     ) public onlyIfWeHaveEnoughReserves(amount) {
@@ -298,8 +298,7 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
         weth.transfer(msg.sender, amount);
     }
 
-    mapping(address => uint256) public balanceOf;
-
+    /// @inheritdoc IDecentEthRouter
     function addLiquidityEth()
         public
         payable
@@ -310,6 +309,7 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
         dcntEth.mint(address(this), msg.value);
     }
 
+    /// @inheritdoc IDecentEthRouter
     function removeLiquidityEth(
         uint256 amount
     ) public onlyEthChain userIsWithdrawing(amount) {
@@ -318,6 +318,7 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
         payable(msg.sender).transfer(amount);
     }
 
+    /// @inheritdoc IDecentEthRouter
     function addLiquidityWeth(
         uint256 amount
     ) public payable userDepositing(amount) {
@@ -325,6 +326,7 @@ contract DecentEthRouter is IOFTReceiverV2, Owned {
         dcntEth.mint(address(this), amount);
     }
 
+    /// @inheritdoc IDecentEthRouter
     function removeLiquidityWeth(
         uint256 amount
     ) public userIsWithdrawing(amount) {
