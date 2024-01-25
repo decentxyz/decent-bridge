@@ -17,7 +17,7 @@ contract DcntEth is OFTV2 {
     /**
      * @param _router the decentEthRouter associated with this eth
      */
-    function setRouter(address _router) public {
+    function setRouter(address _router) public onlyOwner {
         router = _router;
     }
 
