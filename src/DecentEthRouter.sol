@@ -284,7 +284,11 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
     /// @inheritdoc IDecentEthRouter
     function redeemEth(
         uint256 amount
-    ) public onlyIfWeHaveEnoughReserves(amount) {
+    ) 
+        public 
+        onlyEthChain 
+        onlyIfWeHaveEnoughReserves(amount) 
+    {
         dcntEth.transferFrom(msg.sender, address(this), amount);
         weth.withdraw(amount);
         payable(msg.sender).transfer(amount);
