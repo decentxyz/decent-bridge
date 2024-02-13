@@ -62,6 +62,7 @@ contract RouterActions is DecentBridgeDeploymentSetup, WethMintHelper {
             msgType,
             lzIdLookup[params.dst],
             params.toAddress,
+            params.fromAddress,
             params.amount,
             dstGasForCall,
             deliverEth,
@@ -83,6 +84,7 @@ contract RouterActions is DecentBridgeDeploymentSetup, WethMintHelper {
             srcRouter.bridge{value: value}(
                 lzIdLookup[params.dst],
                 params.toAddress,
+                params.fromAddress,
                 params.amount,
                 dstGasForCall,
                 deliverEth
@@ -91,6 +93,7 @@ contract RouterActions is DecentBridgeDeploymentSetup, WethMintHelper {
             srcRouter.bridgeWithPayload{value: value}(
                 lzIdLookup[params.dst],
                 params.toAddress,
+                params.fromAddress,
                 params.amount,
                 deliverEth,
                 dstGasForCall,

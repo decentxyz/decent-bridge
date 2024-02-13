@@ -115,6 +115,7 @@ contract Bridge is Common {
             0,
             lzIdLookup[dst],
             to,
+            from,
             amount,
             gas,
             true,
@@ -125,6 +126,7 @@ contract Bridge is Common {
         router.bridge{value: nativeFee + zroFee + amount}(
             lzIdLookup[dst],
             to,
+            from,
             amount,
             gas,
             true

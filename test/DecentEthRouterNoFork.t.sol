@@ -110,7 +110,7 @@ contract DecentEthRouterNoFork is CommonRouterSetup {
             true
         );
 
-        assertEq(dcntEth.balanceOf(alice), 1 ether);
+        assertEq(dcntEth.balanceOf(bob), 1 ether);
         assertEq(dcntEth.balanceOf(address(router)), 0.1 ether);
     }
 
