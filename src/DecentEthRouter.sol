@@ -80,6 +80,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
     function _getCallParams(
         uint8 msgType,
         address _toAddress,
+        address _refundAddress,
         uint16 _dstChainId,
         uint64 _dstGasForCall,
         bool deliverEth,
@@ -98,12 +99,13 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         adapterParams = abi.encodePacked(PT_SEND_AND_CALL, gasAmount);
         destBridge = bytes32(abi.encode(destinationBridges[_dstChainId]));
         if (msgType == MT_ETH_TRANSFER) {
-            payload = abi.encode(msgType, msg.sender, _toAddress, deliverEth);
+            payload = abi.encode(msgType, msg.sender, _toAddress, _refundAddress, deliverEth);
         } else {
             payload = abi.encode(
                 msgType,
                 msg.sender,
                 _toAddress,
+                _refundAddress,
                 deliverEth,
                 additionalPayload
             );
@@ -114,6 +116,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         uint8 msgType,
         uint16 _dstChainId,
         address _toAddress,
+        address _refundAddress,
         uint _amount,
         uint64 _dstGasForCall,
         bool deliverEth,
@@ -126,6 +129,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         ) = _getCallParams(
                 msgType,
                 _toAddress,
+                _refundAddress,
                 _dstChainId,
                 _dstGasForCall,
                 deliverEth,
@@ -149,6 +153,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         uint8 msgType,
         uint16 _dstChainId,
         address _toAddress,
+        address _refundAddress
         uint _amount,
         uint64 _dstGasForCall,
         bytes memory additionalPayload,
@@ -161,6 +166,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         ) = _getCallParams(
                 msgType,
                 _toAddress,
+                _refundAddress
                 _dstChainId,
                 _dstGasForCall,
                 deliverEth,
@@ -197,6 +203,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
     function bridgeWithPayload(
         uint16 _dstChainId,
         address _toAddress,
+        address _refundAddress,
         uint _amount,
         bool deliverEth,
         uint64 _dstGasForCall,
@@ -207,6 +214,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
                 MT_ETH_TRANSFER_WITH_PAYLOAD,
                 _dstChainId,
                 _toAddress,
+                _refundAddress,
                 _amount,
                 _dstGasForCall,
                 additionalPayload,
@@ -218,6 +226,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
     function bridge(
         uint16 _dstChainId,
         address _toAddress,
+        address _refundAddress,
         uint _amount,
         uint64 _dstGasForCall,
         bool deliverEth // if false, delivers WETH
@@ -226,6 +235,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
             MT_ETH_TRANSFER,
             _dstChainId,
             _toAddress,
+            _refundAddress,
             _amount,
             _dstGasForCall,
             bytes(""),
@@ -242,7 +252,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         uint _amount,
         bytes memory _payload
     ) external override onlyLzApp {
-        (uint8 msgType, address _from, address _to, bool deliverEth) = abi
+        (uint8 msgType, address _from, address _to, address _refundAddress, bool deliverEth) = abi
             .decode(_payload, (uint8, address, address, bool));
 
         bytes memory callPayload = "";
@@ -264,7 +274,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         );
 
         if (weth.balanceOf(address(this)) < _amount) {
-            dcntEth.transfer(_to, _amount);
+            dcntEth.transfer(_refundAddress, _amount);
             return;
         }
 

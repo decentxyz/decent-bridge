@@ -47,12 +47,14 @@ contract DecentBridgeExecutor is IDecentBridgeExecutor, Owned {
     /**
      * @dev helper function for execute
      * @param from caller of the function
+     * @param refundAddress the address to be refunded
      * @param target target contract
      * @param amount amount of the transaction
      * @param callPayload payload for the tx
      */
     function _executeEth(
         address from,
+        address refundAddress,
         address target,
         uint256 amount,
         bytes memory callPayload
@@ -60,13 +62,14 @@ contract DecentBridgeExecutor is IDecentBridgeExecutor, Owned {
         weth.withdraw(amount);
         (bool success, ) = target.call{value: amount}(callPayload);
         if (!success) {
-            payable(from).transfer(amount);
+            payable(refundAddress).transfer(amount);
         }
     }
 
     /// @inheritdoc IDecentBridgeExecutor
     function execute(
         address from,
+        address refundAddress,
         address target,
         bool deliverEth,
         uint256 amount,
@@ -75,9 +78,9 @@ contract DecentBridgeExecutor is IDecentBridgeExecutor, Owned {
         weth.transferFrom(msg.sender, address(this), amount);
 
         if (!gasCurrencyIsEth || !deliverEth) {
-            _executeWeth(from, target, amount, callPayload);
+            _executeWeth(from, refundAddress, target, amount, callPayload);
         } else {
-            _executeEth(from, target, amount, callPayload);
+            _executeEth(from, refundAddress, target, amount, callPayload);
         }
     }
 
