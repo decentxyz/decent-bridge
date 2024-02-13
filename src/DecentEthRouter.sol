@@ -21,6 +21,8 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
 
     bool public gasCurrencyIsEth; // for chains that use ETH as gas currency
 
+    address public decentBridgeAdapter;
+
     mapping(uint16 => address) public destinationBridges;
     mapping(address => uint256) public balanceOf;
 
@@ -43,6 +45,14 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         require(
             address(dcntEth) == msg.sender,
             "DecentEthRouter: only lz App can call"
+        );
+        _;
+    }
+
+    modifier onlyDecentBridgeAdapter() {
+        require(
+            decentBridgeAdapter == address(0) || decentBridgeAdapter == msg.sender,
+            "only Decent Bridge Adapter can call"
         );
         _;
     }
@@ -208,7 +218,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         bool deliverEth,
         uint64 _dstGasForCall,
         bytes memory additionalPayload
-    ) public payable {
+    ) public payable onlyDecentBridgeAdapter {
         return
             _bridgeWithPayload(
                 MT_ETH_TRANSFER_WITH_PAYLOAD,
@@ -230,7 +240,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         uint _amount,
         uint64 _dstGasForCall,
         bool deliverEth // if false, delivers WETH
-    ) public payable {
+    ) public payable onlyDecentBridgeAdapter {
         _bridgeWithPayload(
             MT_ETH_TRANSFER,
             _dstChainId,
@@ -346,6 +356,12 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
     ) public userIsWithdrawing(amount) {
         dcntEth.burn(address(this), amount);
         weth.transfer(msg.sender, amount);
+    }
+
+    function setDecentBridgeAdapter(
+        address _decentBridgeAdapter
+    ) public onlyOwner {
+        decentBridgeAdapter = _decentBridgeAdapter;
     }
 
     receive() external payable {}
