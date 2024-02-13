@@ -35,6 +35,7 @@ interface IDecentEthRouter {
         uint8 msgType,
         uint16 _dstChainId,
         address _toAddress,
+        address _refundAddress,
         uint _amount,
         uint64 _dstGasForCall,
         bool deliverEth,
@@ -44,6 +45,7 @@ interface IDecentEthRouter {
     /**
      * @param _dstChainId lz endpoint
      * @param _toAddress the destination address (i.e. dst bridge)
+     * @param _refundAddress the refund address
      * @param _amount the amount being bridged
      * @param deliverEth if false, delivers WETH
      * @param _dstGasForCall the amount of dst gas
@@ -52,6 +54,7 @@ interface IDecentEthRouter {
     function bridgeWithPayload(
         uint16 _dstChainId,
         address _toAddress,
+        address _refundAddress,
         uint _amount,
         bool deliverEth,
         uint64 _dstGasForCall,
@@ -61,6 +64,7 @@ interface IDecentEthRouter {
     /**
      * @param _dstChainId lz endpoint
      * @param _toAddress destination address
+     * @param _refundAddress the address to be refunded
      * @param _amount the amount being bridge
      * @param _dstGasForCall the amount of dst gas
      * @param deliverEth if false, delivers WETH
@@ -68,6 +72,7 @@ interface IDecentEthRouter {
     function bridge(
         uint16 _dstChainId,
         address _toAddress,
+        address _refundAddress,
         uint _amount,
         uint64 _dstGasForCall,
         bool deliverEth // if false, delivers WETH

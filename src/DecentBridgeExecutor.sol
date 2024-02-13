@@ -16,13 +16,13 @@ contract DecentBridgeExecutor is IDecentBridgeExecutor, Owned {
 
     /**
      * @dev helper function for execute
-     * @param from caller of the function
+     * @param refundAddress the refund address
      * @param target target contract
      * @param amount amount of the in eth
      * @param callPayload payload for the tx
      */
     function _executeWeth(
-        address from,
+        address refundAddress,
         address target,
         uint256 amount,
         bytes memory callPayload
@@ -33,7 +33,7 @@ contract DecentBridgeExecutor is IDecentBridgeExecutor, Owned {
         (bool success, ) = target.call(callPayload);
 
         if (!success) {
-            weth.transfer(from, amount);
+            weth.transfer(refundAddress, amount);
             return;
         }
 
@@ -41,19 +41,17 @@ contract DecentBridgeExecutor is IDecentBridgeExecutor, Owned {
             (balanceBefore - weth.balanceOf(address(this)));
 
         // refund the sender with excess WETH
-        weth.transfer(from, remainingAfterCall);
+        weth.transfer(refundAddress, remainingAfterCall);
     }
 
     /**
      * @dev helper function for execute
-     * @param from caller of the function
      * @param refundAddress the address to be refunded
      * @param target target contract
      * @param amount amount of the transaction
      * @param callPayload payload for the tx
      */
     function _executeEth(
-        address from,
         address refundAddress,
         address target,
         uint256 amount,
@@ -68,7 +66,6 @@ contract DecentBridgeExecutor is IDecentBridgeExecutor, Owned {
 
     /// @inheritdoc IDecentBridgeExecutor
     function execute(
-        address from,
         address refundAddress,
         address target,
         bool deliverEth,
@@ -78,9 +75,9 @@ contract DecentBridgeExecutor is IDecentBridgeExecutor, Owned {
         weth.transferFrom(msg.sender, address(this), amount);
 
         if (!gasCurrencyIsEth || !deliverEth) {
-            _executeWeth(from, refundAddress, target, amount, callPayload);
+            _executeWeth(refundAddress, target, amount, callPayload);
         } else {
-            _executeEth(from, refundAddress, target, amount, callPayload);
+            _executeEth(refundAddress, target, amount, callPayload);
         }
     }
 

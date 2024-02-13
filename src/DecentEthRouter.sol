@@ -163,7 +163,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         uint8 msgType,
         uint16 _dstChainId,
         address _toAddress,
-        address _refundAddress
+        address _refundAddress,
         uint _amount,
         uint64 _dstGasForCall,
         bytes memory additionalPayload,
@@ -176,7 +176,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         ) = _getCallParams(
                 msgType,
                 _toAddress,
-                _refundAddress
+                _refundAddress,
                 _dstChainId,
                 _dstGasForCall,
                 deliverEth,
@@ -263,14 +263,14 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         bytes memory _payload
     ) external override onlyLzApp {
         (uint8 msgType, address _from, address _to, address _refundAddress, bool deliverEth) = abi
-            .decode(_payload, (uint8, address, address, bool));
+            .decode(_payload, (uint8, address, address, address, bool));
 
         bytes memory callPayload = "";
 
         if (msgType == MT_ETH_TRANSFER_WITH_PAYLOAD) {
-            (, , , , callPayload) = abi.decode(
+            (, , , , , callPayload) = abi.decode(
                 _payload,
-                (uint8, address, address, bool, bytes)
+                (uint8, address, address, address, bool, bytes)
             );
         }
 
@@ -297,7 +297,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
             }
         } else {
             weth.approve(address(executor), _amount);
-            executor.execute(_from, _to, deliverEth, _amount, callPayload);
+            executor.execute(_refundAddress, _to, deliverEth, _amount, callPayload);
         }
     }
 

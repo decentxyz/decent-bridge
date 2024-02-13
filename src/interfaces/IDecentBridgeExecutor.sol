@@ -7,14 +7,14 @@ interface IDecentBridgeExecutor {
 
     /**
      * @dev called upon receiving dcntEth in the DecentEthRouter
-     * @param from the senders address for refund
+     * @param refundAddress the address to send refunds
      * @param target target contract
      * @param deliverEth delivers WETH if false
      * @param amount amount of the transaction
      * @param callPayload payload for the tx
      */
     function execute(
-      address from,
+      address refundAddress,
       address target,
       bool deliverEth,
       uint256 amount,
