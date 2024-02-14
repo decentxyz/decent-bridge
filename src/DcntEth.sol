@@ -12,7 +12,7 @@ contract DcntEth is OFTV2 {
 
     constructor(
         address _layerZeroEndpoint
-    ) OFTV2("Decent Eth", "DcntEth", 6, _layerZeroEndpoint) {}
+    ) OFTV2("Decent Eth", "DcntEth", 18, _layerZeroEndpoint) {}
 
     /**
      * @param _router the decentEthRouter associated with this eth
