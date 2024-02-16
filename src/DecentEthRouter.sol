@@ -182,7 +182,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Roles {
             );
 
         ICommonOFT.LzCallParams memory callParams = ICommonOFT.LzCallParams({
-            refundAddress: payable(msg.sender),
+            refundAddress: payable(_refundAddress),
             zroPaymentAddress: address(0x0),
             adapterParams: adapterParams
         });
