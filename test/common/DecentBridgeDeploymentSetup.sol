@@ -43,7 +43,7 @@ contract DecentBridgeDeploymentSetup is LoadAllChainInfo, ChainDeployer {
             )
         );
 
-        executor.transferOwnership(address(router));
+        executor.setOperator(address(router));
 
         decentBridgeExecutorLookup[chain] = executor;
         routerLookup[chain] = router;
@@ -86,7 +86,6 @@ contract DecentBridgeDeploymentSetup is LoadAllChainInfo, ChainDeployer {
         DecentEthRouter srcRouter = routerLookup[src];
         DcntEth srcDcntEth = dcntEthLookup[src];
         DcntEth dstDcntEth = dcntEthLookup[dst];
-        startImpersonating(srcRouter.owner());
         srcRouter.addDestinationBridge(
             lzIdLookup[dst],
             address(routerLookup[dst])
@@ -100,7 +99,6 @@ contract DecentBridgeDeploymentSetup is LoadAllChainInfo, ChainDeployer {
             srcDcntEth.PT_SEND_AND_CALL(),
             MIN_DST_GAS
         );
-        stopImpersonating();
     }
 
     function wireUp(string memory src, string memory dst) public {

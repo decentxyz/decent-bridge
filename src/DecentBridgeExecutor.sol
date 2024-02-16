@@ -2,14 +2,14 @@
 pragma solidity ^0.8.0;
 
 import {IWETH} from "./interfaces/IWETH.sol";
-import {Owned} from "solmate/auth/Owned.sol";
 import {IDecentBridgeExecutor} from "./interfaces/IDecentBridgeExecutor.sol";
+import {Operable} from "./utils/Operable.sol";
 
-contract DecentBridgeExecutor is IDecentBridgeExecutor, Owned {
+contract DecentBridgeExecutor is IDecentBridgeExecutor, Operable {
     IWETH weth;
     bool public gasCurrencyIsEth; // for chains that use ETH as gas currency
 
-    constructor(address _weth, bool gasIsEth) Owned(msg.sender) {
+    constructor(address _weth, bool gasIsEth) {
         weth = IWETH(payable(_weth));
         gasCurrencyIsEth = gasIsEth;
     }
@@ -71,7 +71,7 @@ contract DecentBridgeExecutor is IDecentBridgeExecutor, Owned {
         bool deliverEth,
         uint256 amount,
         bytes memory callPayload
-    ) public onlyOwner {
+    ) public onlyOperator {
         weth.transferFrom(msg.sender, address(this), amount);
 
         if (!gasCurrencyIsEth || !deliverEth) {

@@ -5,11 +5,11 @@ import {IWETH} from "./interfaces/IWETH.sol";
 import {IDcntEth} from "./interfaces/IDcntEth.sol";
 import {ICommonOFT} from "solidity-examples/token/oft/v2/interfaces/ICommonOFT.sol";
 import {IOFTReceiverV2} from "solidity-examples/token/oft/v2/interfaces/IOFTReceiverV2.sol";
-import {Owned} from "solmate/auth/Owned.sol";
+import {Roles} from "./utils/Roles.sol";
 import {IDecentBridgeExecutor} from "./interfaces/IDecentBridgeExecutor.sol";
 import {IDecentEthRouter} from "./interfaces/IDecentEthRouter.sol";
 
-contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
+contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Roles {
     IWETH public weth;
     IDcntEth public dcntEth;
     IDecentBridgeExecutor public executor;
@@ -21,7 +21,8 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
 
     bool public gasCurrencyIsEth; // for chains that use ETH as gas currency
 
-    address public decentBridgeAdapter;
+    bytes32 public constant BRIDGE_OPERATOR_ROLE = keccak256("BRIDGE_OPERATOR_ROLE");
+    bool public requireOperator;
 
     mapping(uint16 => address) public destinationBridges;
     mapping(address => uint256) public balanceOf;
@@ -30,7 +31,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         address payable _wethAddress,
         bool gasIsEth,
         address _executor
-    ) Owned(msg.sender) {
+    ) Roles(msg.sender) {
         weth = IWETH(_wethAddress);
         gasCurrencyIsEth = gasIsEth;
         executor = IDecentBridgeExecutor(payable(_executor));
@@ -49,11 +50,8 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         _;
     }
 
-    modifier onlyDecentBridgeAdapter() {
-        require(
-            decentBridgeAdapter == address(0) || decentBridgeAdapter == msg.sender,
-            "only Decent Bridge Adapter can call"
-        );
+    modifier onlyOperator() {
+        require(!requireOperator || hasRole(BRIDGE_OPERATOR_ROLE, msg.sender), "Only bridge operator");
         _;
     }
 
@@ -75,7 +73,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
     }
 
     /// @inheritdoc IDecentEthRouter
-    function registerDcntEth(address _addr) public onlyOwner {
+    function registerDcntEth(address _addr) public onlyAdmin {
         dcntEth = IDcntEth(_addr);
     }
 
@@ -83,7 +81,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
     function addDestinationBridge(
         uint16 _dstChainId,
         address _routerAddress
-    ) public onlyOwner {
+    ) public onlyAdmin {
         destinationBridges[_dstChainId] = _routerAddress;
     }
 
@@ -218,7 +216,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         bool deliverEth,
         uint64 _dstGasForCall,
         bytes memory additionalPayload
-    ) public payable onlyDecentBridgeAdapter {
+    ) public payable onlyOperator {
         return
             _bridgeWithPayload(
                 MT_ETH_TRANSFER_WITH_PAYLOAD,
@@ -240,7 +238,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         uint _amount,
         uint64 _dstGasForCall,
         bool deliverEth // if false, delivers WETH
-    ) public payable onlyDecentBridgeAdapter {
+    ) public payable onlyOperator {
         _bridgeWithPayload(
             MT_ETH_TRANSFER,
             _dstChainId,
@@ -304,10 +302,10 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
     /// @inheritdoc IDecentEthRouter
     function redeemEth(
         uint256 amount
-    ) 
-        public 
-        onlyEthChain 
-        onlyIfWeHaveEnoughReserves(amount) 
+    )
+        public
+        onlyEthChain
+        onlyIfWeHaveEnoughReserves(amount)
     {
         dcntEth.transferFrom(msg.sender, address(this), amount);
         weth.withdraw(amount);
@@ -358,10 +356,10 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Owned {
         weth.transfer(msg.sender, amount);
     }
 
-    function setDecentBridgeAdapter(
-        address _decentBridgeAdapter
-    ) public onlyOwner {
-        decentBridgeAdapter = _decentBridgeAdapter;
+    function setRequireOperator(
+        bool _requireOperator
+    ) public onlyAdmin {
+        requireOperator = _requireOperator;
     }
 
     receive() external payable {}
