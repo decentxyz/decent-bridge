@@ -7,7 +7,7 @@ contract DcntEth is OFTV2, Roles {
     address public router;
 
     modifier onlyRouter() {
-        require(msg.sender == router);
+        require(msg.sender == router, "Only router");
         _;
     }
 

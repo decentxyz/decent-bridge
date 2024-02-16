@@ -12,7 +12,7 @@ abstract contract Operable is Roles {
      * @dev Limit access to the approved operator.
      */
     modifier onlyOperator() {
-        require(msg.sender == operator);
+        require(msg.sender == operator, "Only operator");
         _;
     }
 
