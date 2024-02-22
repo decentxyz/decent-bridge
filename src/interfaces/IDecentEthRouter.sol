@@ -10,6 +10,16 @@ interface IDecentEthRouter {
         uint amount,
         bytes payload
     );
+    
+    error OnlyLzApp();
+
+    error OnlyEthChain();
+
+    error OnlyBridgeOperator();
+
+    error NotEnoughReserves();
+
+    error InsufficientBalance();
 
     function MT_ETH_TRANSFER() external view returns (uint8);
 
