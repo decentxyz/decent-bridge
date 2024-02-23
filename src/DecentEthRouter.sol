@@ -38,25 +38,22 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Roles {
     }
 
     modifier onlyEthChain() {
-        require(gasCurrencyIsEth, "Gas currency is not ETH");
+        if (!gasCurrencyIsEth) revert OnlyEthChain();
         _;
     }
 
     modifier onlyLzApp() {
-        require(
-            address(dcntEth) == msg.sender,
-            "DecentEthRouter: only lz App can call"
-        );
+        if (address(dcntEth) != msg.sender) revert OnlyLzApp();
         _;
     }
 
     modifier onlyOperator() {
-        require(!requireOperator || hasRole(BRIDGE_OPERATOR_ROLE, msg.sender), "Only bridge operator");
+        if (requireOperator && !hasRole(BRIDGE_OPERATOR_ROLE, msg.sender)) revert OnlyBridgeOperator();
         _;
     }
 
     modifier onlyIfWeHaveEnoughReserves(uint256 amount) {
-        require(weth.balanceOf(address(this)) > amount, "not enough reserves");
+        if (weth.balanceOf(address(this)) < amount) revert NotEnoughReserves();
         _;
     }
 
@@ -67,7 +64,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Roles {
 
     modifier userIsWithdrawing(uint256 amount) {
         uint256 balance = balanceOf[msg.sender];
-        require(balance >= amount, "not enough balance");
+        if (balance < amount) revert InsufficientBalance();
         _;
         balanceOf[msg.sender] -= amount;
     }
