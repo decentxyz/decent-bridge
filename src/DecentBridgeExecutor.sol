@@ -6,7 +6,7 @@ import {IDecentBridgeExecutor} from "./interfaces/IDecentBridgeExecutor.sol";
 import {Operable} from "./utils/Operable.sol";
 
 contract DecentBridgeExecutor is IDecentBridgeExecutor, Operable {
-    IWETH weth;
+    IWETH public weth;
     bool public gasCurrencyIsEth; // for chains that use ETH as gas currency
 
     constructor(address _weth, bool gasIsEth) {
