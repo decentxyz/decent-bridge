@@ -14,6 +14,14 @@ contract DecentBridgeExecutor is IDecentBridgeExecutor, Operable {
         gasCurrencyIsEth = gasIsEth;
     }
 
+    function setWeth(address _weth) public onlyAdmin {
+        weth = IWETH(payable(_weth));
+    }
+
+    function setGasCurrencyIsEth(bool gasIsEth) public onlyAdmin {
+        gasCurrencyIsEth = gasIsEth;
+    }
+
     /**
      * @dev helper function for execute
      * @param refundAddress the refund address

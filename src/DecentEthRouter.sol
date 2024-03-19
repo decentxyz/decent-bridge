@@ -28,11 +28,11 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Roles {
     mapping(address => uint256) public balanceOf;
 
     constructor(
-        address payable _wethAddress,
+        address payable _weth,
         bool gasIsEth,
         address _executor
     ) Roles(msg.sender) {
-        weth = IWETH(_wethAddress);
+        weth = IWETH(_weth);
         gasCurrencyIsEth = gasIsEth;
         executor = IDecentBridgeExecutor(payable(_executor));
     }
@@ -67,6 +67,18 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Roles {
         if (balance < amount) revert InsufficientBalance();
         _;
         balanceOf[msg.sender] -= amount;
+    }
+
+    function setWeth(address payable _weth) public onlyAdmin {
+        weth = IWETH(_weth);
+    }
+
+    function setGasCurrencyIsEth(bool gasIsEth) public onlyAdmin {
+        gasCurrencyIsEth = gasIsEth;
+    }
+
+    function setExecutor(address _executor) public onlyAdmin {
+        executor = IDecentBridgeExecutor(payable(_executor));
     }
 
     /// @inheritdoc IDecentEthRouter
