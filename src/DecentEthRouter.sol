@@ -65,8 +65,8 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Roles {
     modifier userIsWithdrawing(uint256 amount) {
         uint256 balance = balanceOf[msg.sender];
         if (balance < amount) revert InsufficientBalance();
-        _;
         balanceOf[msg.sender] -= amount;
+        _;
     }
 
     /// @inheritdoc IDecentEthRouter
@@ -288,7 +288,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Roles {
                 weth.transfer(_to, _amount);
             } else {
                 weth.withdraw(_amount);
-                payable(_to).transfer(_amount);
+                (payable(_to).call{value: _amount}(""));
             }
         } else {
             weth.approve(address(executor), _amount);
@@ -306,7 +306,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Roles {
     {
         dcntEth.transferFrom(msg.sender, address(this), amount);
         weth.withdraw(amount);
-        payable(msg.sender).transfer(amount);
+        (payable(msg.sender).call{value: amount}(""));
     }
 
     /// @inheritdoc IDecentEthRouter
@@ -334,7 +334,7 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Roles {
     ) public onlyEthChain userIsWithdrawing(amount) {
         dcntEth.burn(address(this), amount);
         weth.withdraw(amount);
-        payable(msg.sender).transfer(amount);
+        (payable(msg.sender).call{value: amount}(""));
     }
 
     /// @inheritdoc IDecentEthRouter

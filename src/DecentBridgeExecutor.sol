@@ -60,7 +60,7 @@ contract DecentBridgeExecutor is IDecentBridgeExecutor, Operable {
         weth.withdraw(amount);
         (bool success, ) = target.call{value: amount}(callPayload);
         if (!success) {
-            payable(refundAddress).transfer(amount);
+            (payable(refundAddress).call{value: amount}(""));
         }
     }
 
