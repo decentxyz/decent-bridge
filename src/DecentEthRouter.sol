@@ -73,10 +73,6 @@ contract DecentEthRouter is IDecentEthRouter, IOFTReceiverV2, Roles {
         weth = IWETH(_weth);
     }
 
-    function setGasCurrencyIsEth(bool gasIsEth) public onlyAdmin {
-        gasCurrencyIsEth = gasIsEth;
-    }
-
     function setExecutor(address _executor) public onlyAdmin {
         executor = IDecentBridgeExecutor(payable(_executor));
     }
