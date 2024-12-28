@@ -113,7 +113,7 @@ Here are two generous faucets for this:
 `make` installed. You can easily install the correct version with:
 
 ```bash
-brew install make # binary's called gmake
+brew install make # the binary is called gmake
 ```
 
 Then you have to alias it in your rc file. Add this line to the bottom of
